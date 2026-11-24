@@ -25,7 +25,39 @@ body {
   padding: env(safe-area-inset-top, 0px) max(20px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(20px, env(safe-area-inset-left, 0px));
 }
 button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; text-align: left; }
-.app { height: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+[hidden] { display: none !important; }
+body { display: flex; flex-direction: column; }
+.app, .chords { flex: 1; min-height: 0; width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+.views { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 480px; margin: 0 auto; border-top: 2px solid var(--ink); }
+.views button { min-height: 50px; font-size: 17px; color: var(--muted); border-top: 4px solid transparent; margin-top: -2px; }
+.views button.on { color: var(--ink); font-weight: 700; border-top-color: var(--red); }
+.chords { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 0 12px; }
+#roots { display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #CBC7BA; border-left: 1px solid #CBC7BA; flex: none; }
+#roots button { min-height: 44px; font-size: 18px; font-weight: 700; text-align: center; border-right: 1px solid #CBC7BA; border-bottom: 1px solid #CBC7BA; line-height: 1.05; }
+#roots small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+#roots .on { background: var(--red); color: #fff; } #roots .on small { color: #fff; }
+#types { display: flex; justify-content: space-between; gap: 6px; flex: none; margin-top: 4px; }
+#types button { min-height: 44px; font-size: clamp(13px, 4vw, 16px); color: var(--muted); border-bottom: 2px solid transparent; }
+#types .on { color: var(--ink); font-weight: 700; border-bottom: 4px solid var(--red); }
+.title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 8px; flex: none; }
+.title h2 { margin: 0; font-size: 38px; line-height: 1; letter-spacing: -.02em; white-space: nowrap; }
+.title span { font-size: 14px; color: var(--muted); text-align: right; }
+#boardBtn { display: block; width: 100%; flex: 1 0 180px; min-height: 180px; margin-top: 8px; }
+#board { display: block; width: 100%; height: 100%; max-height: 340px; }
+#board text, #ways text { font-family: var(--font); font-weight: 700; }
+.row { display: flex; align-items: center; gap: 12px; flex: none; min-height: 44px; }
+.row > span { font-size: 14px; color: var(--muted); flex: none; }
+#fingersRow { display: flex; gap: 8px; overflow-x: auto; }
+#fingersRow button { min-height: 44px; min-width: 64px; padding: 0 8px; text-align: center; font-size: 16px; white-space: nowrap; color: var(--muted); border-bottom: 2px solid #CBC7BA; }
+#fingersRow .on { color: var(--ink); font-weight: 700; border-bottom: 4px solid var(--red); }
+.strums { display: grid; grid-template-columns: 1.4fr 1fr 1.4fr; gap: 8px; flex: none; margin-top: 4px; }
+.strums button { min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 700; white-space: nowrap; border: 2px solid var(--ink); }
+.strums button:first-child { background: var(--ink); color: var(--light); }
+.strums button:active { background: var(--red); border-color: var(--red); color: #fff; }
+#ways { display: flex; gap: 8px; overflow-x: auto; flex: none; margin-top: 4px; padding-bottom: 4px; }
+#ways button { flex: 0 0 66px; border: 2px solid #CBC7BA; padding: 3px; }
+#ways .on { border-color: var(--red); } #ways svg { display: block; width: 100%; }
+#chordNote { margin: 6px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); flex: none; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 12px; padding-top: 8px; }
 .tabs button { min-height: 46px; font-size: clamp(14px, 4.4vw, 17px); color: var(--muted); border-bottom: 2px solid #CBC7BA; white-space: nowrap; }
 .tabs button.on { font-weight: 700; color: var(--ink); border-bottom: 4px solid var(--red); }
@@ -49,7 +81,7 @@ dialog h2 { font-size: 20px; margin: 0 0 8px; }
 .opt span { color: var(--muted); font-size: 15px; white-space: nowrap; }
 .opt.on { font-weight: 700; } .opt.on span { color: var(--red); }
 .note { margin: 0; padding: 10px 0; font-size: 13px; line-height: 1.4; color: var(--muted); border-top: 1px solid #CBC7BA; }
-#close { width: 100%; min-height: 50px; margin-top: 8px; padding: 0 16px; background: var(--ink); color: var(--light); font-weight: 700; font-size: 17px; }
+#close, .close { width: 100%; min-height: 50px; margin-top: 8px; padding: 0 16px; background: var(--ink); color: var(--light); font-weight: 700; font-size: 17px; }
 button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 @media (max-height: 520px) { .hint { min-height: 0; } .panel { padding: 8px 0; } }
 @media (prefers-reduced-motion: reduce) { #mark { transition: none; } }
@@ -74,6 +106,23 @@ button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
     <p class="hint" id="hint"></p>
   </section>
 </main>
+<main class="chords" id="chords" hidden>
+  <div id="roots" role="group" aria-label="Root note"></div>
+  <div id="types" role="group" aria-label="Chord type"><button type="button" id="typeMore" aria-haspopup="dialog">More</button></div>
+  <div class="title"><h2 id="chordName"></h2><span id="chordInfo"></span></div>
+  <button type="button" id="boardBtn"><svg id="board" viewBox="0 0 240 240" aria-hidden="true"></svg></button>
+  <div class="strums" role="group" aria-label="Hear this chord"><button type="button" id="strumDown">Strum ↓</button><button type="button" id="strumUp">Up ↑</button><button type="button" id="strumSlow">Note by note</button></div>
+  <div class="row"><span id="fingerLabel"></span><div id="fingersRow" role="group" aria-label="Finger options"></div></div>
+  <div class="row" style="min-height:30px"><span id="wayLabel"></span></div>
+  <div id="ways" role="group" aria-label="Ways to play this chord"></div>
+  <p id="chordNote"></p>
+</main>
+<nav class="views" aria-label="Sections"><button type="button" id="navTune">Tune</button><button type="button" id="navChords">Chords</button></nav>
+<dialog id="typeDialog" aria-labelledby="typeTitle">
+  <h2 id="typeTitle">More chord types</h2>
+  <div id="typeOptions"></div>
+  <button type="button" id="typeClose" class="close">Done</button>
+</dialog>
 <dialog id="more" aria-labelledby="moreTitle">
   <h2 id="moreTitle">More tunings</h2>
   <div id="options"></div>
@@ -206,7 +255,7 @@ function show(next, status, cents, hint) {
   if (changed) draw();
 }
 function rest(message, hint) {
-  if (selected === null) show('idle', message || 'Tap a peg to tune', null, hint || 'Hold a peg to hear its note');
+  if (selected === null) show('idle', message || 'Tap a peg to tune', null, hint || 'You hear its note first. Hold the peg to keep it playing');
   else {
     const n = noteName(note(selected));
     show('listening', `Pluck ${n}`, null, `Listening. Tap ${n} to stop`);
@@ -237,7 +286,7 @@ function detectPitch(buf, sr) {
 }
 
 // ---- Microphone ----
-let ctx = null, analyser = null, source = null, stream = null, opening = false, timer = 0, wake = null;
+let ctx = null, analyser = null, source = null, stream = null, opening = false, timer = 0, wake = null, openTimer = 0;
 let recent = [], lastHeard = 0, goodSince = 0;
 const buf = new Float32Array(4096);
 
@@ -250,7 +299,21 @@ function resetReading() { recent = []; lastHeard = 0; goodSince = 0; }
 
 function tapPeg(i) {
   if (selected === i) { stopListening(); return; }
-  selected = i; resetReading(); rest(); draw();
+  selected = i; resetReading();
+  clearTimeout(openTimer);
+  if (stream) stream.getTracks().forEach(t => { t.enabled = false; });
+  else session('playback');
+  quietUntil = performance.now() + 1450;
+  strum([note(i)], 0);
+  show('listening', `Playing ${noteFull(note(i))}`, null, 'Listen, then pluck your string');
+  draw();
+  openTimer = setTimeout(beginListening, 1400);
+}
+function beginListening() { // after the reference note, so the app does not tune to itself
+  if (selected === null || playing !== null) return;
+  strumId++; stopPlucks();
+  if (stream) stream.getTracks().forEach(t => { t.enabled = true; });
+  rest();
   if (!stream && !opening) openMic();
 }
 async function openMic() {
@@ -264,7 +327,7 @@ async function openMic() {
     });
     if (selected === null) { s.getTracks().forEach(t => t.stop()); return; } // stopped while asking
     stream = s;
-    s.getTracks().forEach(t => { t.enabled = playing === null; t.onended = () => { if (stream === s) stopListening(); }; });
+    s.getTracks().forEach(t => { t.enabled = playing === null && performance.now() >= quietUntil - 50; t.onended = () => { if (stream === s) stopListening(); }; });
     await resumed;
     if (stream !== s) return;
     source = ctx.createMediaStreamSource(s);
@@ -291,7 +354,8 @@ async function keepAwake() {
 }
 function stopListening(message, hint) {
   selected = null;
-  clearInterval(timer);
+  clearInterval(timer); clearTimeout(openTimer);
+  strumId++; stopPlucks();
   const s = stream; stream = null;
   if (s) s.getTracks().forEach(t => t.stop());
   if (source) source.disconnect();
@@ -353,6 +417,7 @@ function stopVoice(v, after) {
 }
 function holdStart(i) {
   if (voice) { stopVoice(voice, 0); voice = null; }
+  clearTimeout(openTimer); strumId++; stopPlucks();
   playing = i; pendingNote = null; resetReading();
   if (stream) stream.getTracks().forEach(t => { t.enabled = false; });
   else session('playback');
@@ -372,7 +437,7 @@ function holdEnd(play) {
     ctx.resume().then(() => stopVoice(startVoice(f), 1.2)).catch(() => {});
   }
   playing = null; quietUntil = performance.now() + tail; resetReading();
-  setTimeout(() => { if (playing === null && stream) stream.getTracks().forEach(t => { t.enabled = true; }); }, tail);
+  clearTimeout(openTimer); openTimer = setTimeout(beginListening, tail);
   rest(); draw();
 }
 
@@ -416,7 +481,7 @@ $('tabLow').addEventListener('click', () => setTuning('low'));
 $('tabMore').addEventListener('click', () => $('more').showModal());
 $('close').addEventListener('click', () => $('more').close());
 $('more').addEventListener('click', e => { if (e.target === $('more') && e.clientY < $('more').getBoundingClientRect().top) $('more').close(); });
-$('lefty').addEventListener('click', () => { lefty = !lefty; save('lefty', lefty ? '1' : '0'); renderSettings(); draw(); });
+$('lefty').addEventListener('click', () => { lefty = !lefty; save('lefty', lefty ? '1' : '0'); renderSettings(); draw(); renderChord(); });
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   if (voice) { stopVoice(voice, 0); voice = null; }
@@ -424,8 +489,307 @@ document.addEventListener('visibilitychange', () => {
   stopListening();
 });
 
+// ---- Plucked sound ----
+// Built from exact harmonics, so the reference pitch is never rounded.
+const pluckCache = new Map();
+let plucks = [];
+function pluckBuffer(m) {
+  const key = m + '@' + ctx.sampleRate;
+  if (pluckCache.has(key)) return pluckCache.get(key);
+  const sr = ctx.sampleRate, n = Math.floor(sr * 2), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0), f = noteFreq(m);
+  for (let h = 1; h <= 8 && f * h < sr / 2; h++) {
+    const amp = Math.sin(Math.PI * h * 0.22) / h ** 1.3, decay = 1.8 + h * 1.1, w = 2 * Math.PI * f * h / sr;
+    for (let i = 0; i < n; i++) d[i] += amp * Math.sin(w * i) * Math.exp(-decay * i / sr);
+  }
+  for (let i = 0; i < n; i++) d[i] *= Math.min(1, i / (sr * 0.004)) * Math.min(1, (n - i) / (sr * 0.05));
+  pluckCache.set(key, b);
+  return b;
+}
+function stopPlucks() { plucks.forEach(s => { try { s.stop(); } catch (_) {} }); plucks = []; }
+let strumId = 0;
+function strum(notes, gap) {
+  stopPlucks();
+  const id = ++strumId, c = audio();
+  const go = () => {
+    if (id !== strumId) return;
+    notes.forEach(pluckBuffer); // build sounds first so slow phones keep the strum even
+    const t = c.currentTime + 0.02;
+    notes.forEach((m, i) => {
+      const s = c.createBufferSource(), g = c.createGain();
+      s.buffer = pluckBuffer(m); g.gain.value = notes.length > 1 ? 0.21 : 0.6;
+      s.connect(g).connect(c.destination); s.start(t + i * gap);
+      plucks.push(s);
+    });
+  };
+  if (c.state === 'running') go(); else c.resume().then(go).catch(() => {});
+}
+
+// ---- Chords ----
+const ROOTS = [['C', 0], ['D♭', 1], ['D', 2], ['E♭', 3], ['E', 4], ['F', 5], ['F♯', 6], ['G', 7], ['A♭', 8], ['A', 9], ['B♭', 10], ['B', 11]];
+const SHARP = { 'D♭': 'C♯', 'E♭': 'D♯', 'F♯': 'G♭', 'A♭': 'G♯', 'B♭': 'A♯' };
+// key: [symbol, name, tones as "degree" strings, tones that may be left out on four strings]
+const TYPES = {
+  maj: ['', 'Major', '1 3 5'], min: ['m', 'Minor', '1 b3 5'], 7: ['7', 'Seventh', '1 3 5 b7'],
+  m7: ['m7', 'Minor seventh', '1 b3 5 b7'], maj7: ['maj7', 'Major seventh', '1 3 5 7'],
+  6: ['6', 'Sixth', '1 3 5 6'], m6: ['m6', 'Minor sixth', '1 b3 5 6'],
+  sus2: ['sus2', 'Suspended second', '1 2 5'], sus4: ['sus4', 'Suspended fourth', '1 4 5'], '7sus4': ['7sus4', 'Seventh suspended fourth', '1 4 5 b7'],
+  dim: ['dim', 'Diminished', '1 b3 b5'], dim7: ['dim7', 'Diminished seventh', '1 b3 b5 bb7'], m7b5: ['m7♭5', 'Half-diminished', '1 b3 b5 b7'],
+  aug: ['aug', 'Augmented', '1 3 #5'], aug7: ['7♯5', 'Augmented seventh', '1 3 #5 b7'], '7b5': ['7♭5', 'Seventh flat five', '1 3 b5 b7'],
+  add9: ['add9', 'Added ninth', '1 3 5 9'], madd9: ['m(add9)', 'Minor added ninth', '1 b3 5 9'],
+  9: ['9', 'Ninth', '1 3 5 b7 9', '1 5'], m9: ['m9', 'Minor ninth', '1 b3 5 b7 9', '1 5'], maj9: ['maj9', 'Major ninth', '1 3 5 7 9', '1 5'],
+  '7b9': ['7♭9', 'Seventh flat nine', '1 3 5 b7 b9', '1 5'], '7#9': ['7♯9', 'Seventh sharp nine', '1 3 5 b7 #9', '1 5'],
+  13: ['13', 'Thirteenth', '1 3 5 b7 13', '1 5'],
+  mmaj7: ['m(maj7)', 'Minor major seventh', '1 b3 5 7'],
+};
+const MAIN_TYPES = ['maj', 'min', '7', 'm7', 'maj7'];
+const OPEN = [7, 0, 4, 9];             // pitch classes of G C E A
+const STEP = { 1: 0, 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 7: 11, 9: 2, 13: 9 };
+function tone(t) {
+  const deg = parseInt(t.replace(/[b#]/g, ''), 10), acc = (t.match(/#/g) || []).length - (t.match(/b/g) || []).length;
+  return { deg, pc: (STEP[deg] + acc + 12) % 12 };
+}
+const LETTERS = 'CDEFGAB', LETTER_PC = [0, 2, 4, 5, 7, 9, 11];
+const MINORISH = new Set(['min', 'm7', 'm6', 'dim', 'dim7', 'm7b5', 'madd9', 'm9', 'mmaj7']);
+function rootName(r, type) {
+  if (MINORISH.has(type) && (r === 1 || r === 8)) return SHARP[ROOTS[r][0]]; // C♯m and G♯m are the usual names
+  return ROOTS[r][0];
+}
+function spell(root, pcFromRoot, deg) {
+  const li = (LETTERS.indexOf(root[0]) + deg - 1) % 7;
+  const rootPc = LETTER_PC[LETTERS.indexOf(root[0])] + (root[1] === '♯' ? 1 : root[1] === '♭' ? -1 : 0);
+  let acc = ((rootPc + pcFromRoot - LETTER_PC[li]) % 12 + 12) % 12; if (acc > 6) acc -= 12;
+  return LETTERS[li] + (acc < 0 ? '♭'.repeat(-acc) : '♯'.repeat(acc));
+}
+// Widely taught first shapes, shown first. Every one is also checked against the chord's notes.
+const FIRST = {
+  maj: '0003 1114 2220 0331 4442 2010 3121 0232 5343 2100 3211 4322',
+  min: '0333 1104 2210 3321 0432 1013 2120 0231 4342 2000 3111 4222',
+  7: '0001 1112 2223 3334 1202 2310 3424 0212 1323 0100 1211 2322',
+  m7: '3333 4444 2213 3324 0202 1313 2424 0211 1322 0000 1111 2222',
+  maj7: '0002 1113 2224 3335 1302 2413 3524 0222 1333 1100 3210 4321',
+};
+// Finger patterns people commonly teach for a shape, shown first
+const USUAL = { '0232': ['0132', '0243'], '2220': ['1230', '2340', '1110', '2220'], '4442': ['2341', '3331'], '2010': ['2010'], '0003': ['0003'], '2223': ['1112', '1234', '2223'], '0432': ['0321'], '1202': ['1203'], '2310': ['2310'], '2210': ['2310'], '0212': ['0213'], '0231': ['0231'], '1013': ['1024', '1023'], '1114': ['1114', '1113'], '0333': ['0123', '0111'] };
+
+function validFingers(shape, f) {
+  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
+    if (!shape[i] || !shape[j]) continue;
+    if (f[i] === f[j]) {
+      if (shape[i] !== shape[j]) return false;
+      for (let k = i + 1; k < j; k++) {
+        if (shape[k] < shape[i]) return false;
+        if (f[i] !== 1 && f[k] !== f[i]) return false;   // only the index lies flat under higher fingers
+      }
+      if (f[i] === 4) return false;
+      if (shape.some((x, k) => x === shape[i] && f[k] !== f[i])) return false; // a barre takes the whole fret
+    } else {
+      const lo = shape[i] < shape[j] || (shape[i] === shape[j]) ? [i, j] : [j, i];
+      const df = f[lo[1]] - f[lo[0]], dr = shape[lo[1]] - shape[lo[0]];
+      if (df < 0 || dr > df + 1) return false;
+    }
+  }
+  return true;
+}
+function fingerCost(shape, f) {
+  const used = new Map();
+  f.forEach((x, i) => { if (x) used.set(x, { fret: shape[i], n: ((used.get(x) || {}).n || 0) + 1 }); });
+  let best = Infinity;
+  for (let base = 1; base <= 12; base++) {
+    let c = 0;
+    used.forEach((u, x) => { c += Math.abs(x - (u.fret - base + 1)); });
+    best = Math.min(best, c);
+  }
+  used.forEach((u, x) => { if (u.n > 1) best += (x === 1 ? 0.7 : 1.4) + (shape.includes(0) ? 2 : 0); });
+  if (!shape.some(x => x > 1) && used.has(4)) best += 1;
+  return best + [...used.keys()].reduce((a, x) => a + x, 0) * 0.02;
+}
+function fingerings(shape) {
+  const key = shape.join(''), out = [];
+  const opts = shape.map(x => x ? [1, 2, 3, 4] : [0]);
+  for (const a of opts[0]) for (const b of opts[1]) for (const c of opts[2]) for (const d of opts[3]) {
+    const f = [a, b, c, d];
+    if (validFingers(shape, f)) out.push({ f, cost: fingerCost(shape, f) });
+  }
+  out.sort((p, q) => p.cost - q.cost);
+  if (!out.length) return out;
+  const usual = (shape.every(x => x < 10) && USUAL[key] || []).map(u => out.find(o => o.f.join('') === u)).filter(Boolean);
+  const pressed = shape.filter(Boolean).length;
+  const rest = out.filter(o => !usual.includes(o) && o.cost <= out[0].cost + 1.05);
+  return [...usual, ...(usual.length ? [] : rest)].slice(0, pressed === 1 ? 1 : usual.length || 3);
+}
+const voicingCache = new Map();
+function voicings(root, type) {
+  const key = root + ':' + type;
+  if (voicingCache.has(key)) return voicingCache.get(key);
+  const tones = TYPES[type][2].split(' ').map(tone), optional = (TYPES[type][3] || '').split(' ');
+  const all = new Set(tones.map(t => (t.pc + root) % 12));
+  const need = TYPES[type][2].split(' ').filter(t => !optional.includes(t)).map(t => (tone(t).pc + root) % 12);
+  const seen = new Set(), found = [];
+  const consider = (shape, pinned) => {
+    const k = shape.join(',');
+    if (seen.has(k)) return; seen.add(k);
+    const pcs = shape.map((x, i) => (OPEN[i] + x) % 12);
+    const missing = need.filter(p => !pcs.includes(p));
+    if (!pcs.every(p => all.has(p)) || (missing.length && !(pinned && missing.length === 1 && missing[0] === (root + 7) % 12))) return;
+    const fs = fingerings(shape);
+    if (!fs.length) return;
+    const pressed = shape.filter(Boolean), lo = pressed.length ? Math.min(...pressed) : 0, hi = pressed.length ? Math.max(...pressed) : 0;
+    const cost = hi * 0.8 + (hi - lo) * 0.5 + fs[0].cost * 0.5 + (hi > 4 && shape.includes(0) ? 4 : 0) + (pcs.includes(root) ? 0 : 1);
+    found.push({ shape, fs: fs.map(x => x.f), cost: pinned ? -1 : cost, lo, hi, rootless: !pcs.includes(root), noFifth: missing.length > 0 });
+  };
+  if (FIRST[type]) consider([...FIRST[type].split(' ')[root]].map(Number), true);
+  for (let b = 1; b <= 9; b++) {
+    const o = [0, b, b + 1, b + 2, b + 3];
+    for (const g of o) for (const c of o) for (const e of o) for (const a of o) consider([g, c, e, a], false);
+  }
+  found.sort((p, q) => p.cost - q.cost);
+  const top = found.slice(0, 6);
+  const result = top.length ? [top[0], ...top.slice(1).sort((p, q) => p.hi - q.hi || p.cost - q.cost)] : [];
+  voicingCache.set(key, result);
+  return result;
+}
+
+let chordRoot = Number(load('chordRoot')), chordType = load('chordType') || 'maj', way = 0, finger = 0;
+if (!(chordRoot >= 0 && chordRoot < 12 && Number.isInteger(chordRoot))) chordRoot = 0;
+if (!Object.hasOwn(TYPES, chordType)) chordType = 'maj';
+const chordName = () => rootName(chordRoot, chordType) + TYPES[chordType][0];
+// On a D- or baritone-tuned uke the shapes differ, so chords always use G C E A
+const chordOpen = () => TUNINGS[tuningKey === 'high' ? 'high' : tuningKey === 'low' ? 'low' : 'high'].notes;
+
+function fretSvg(v, f, big) {
+  const s = v.shape, first = v.hi <= 4 ? 1 : v.lo, rows = 4;
+  const X = i => 45 + (lefty ? 3 - i : i) * 50, top = big ? 34 : 14, H = 44, Y = fr => top + (fr - first + 0.5) * H, bottom = top + rows * H;
+  let o = `<rect x="27" y="${top}" width="186" height="${rows * H}" fill="#141414"/>`;
+  for (let r = 1; r <= rows; r++) o += `<path d="M27 ${top + r * H}h186" stroke="#A6A6A6" stroke-width="2.5"/>`;
+  o += first === 1 ? `<rect x="23" y="${top - 8}" width="194" height="10" fill="#F2F0EA" stroke="#141414" stroke-width="1.5"/>`
+    : `<text x="22" y="${Y(first) + 7}" text-anchor="end" font-size="${big ? 18 : 30}" fill="#111">${first}</text>`;
+  for (let i = 0; i < 4; i++) o += `<path class="wire" data-i="${i}" d="M${X(i)} ${top}V${bottom}" stroke="#D8D8D8" stroke-width="${big ? 2 : 3}"/>`;
+  for (let x = 1; x <= 4; x++) {
+    const on = [0, 1, 2, 3].filter(i => f[i] === x);
+    if (on.length > 1) {
+      const a = Math.min(...on.map(X)), z = Math.max(...on.map(X));
+      o += `<rect x="${a - 17}" y="${Y(s[on[0]]) - 17}" width="${z - a + 34}" height="34" rx="17" fill="#D9141E"/>`;
+    }
+  }
+  for (let i = 0; i < 4; i++) {
+    if (s[i]) {
+      o += `<circle cx="${X(i)}" cy="${Y(s[i])}" r="17" fill="#D9141E"/>`;
+      if (big) o += `<text x="${X(i)}" y="${Y(s[i]) + 7.5}" text-anchor="middle" font-size="21" fill="#fff">${f[i]}</text>`;
+    } else if (big) o += `<circle cx="${X(i)}" cy="${top - 21}" r="7" fill="none" stroke="#111" stroke-width="2.5"/>`;
+    if (big) {
+      const t = TYPES[chordType][2].split(' ').map(tone).find(t => (t.pc + chordRoot) % 12 === (OPEN[i] + s[i]) % 12);
+      o += `<text x="${X(i)}" y="${bottom + 22}" text-anchor="middle" font-size="17" fill="#111">${spell(rootName(chordRoot, chordType), t.pc, t.deg)}</text>`;
+    }
+  }
+  return o;
+}
+function spoken(v, f) {
+  const names = ['', 'index', 'middle', 'ring', 'little'], strs = 'GCEA';
+  return v.shape.map((x, i) => `${strs[i]} string ${x ? `fret ${x}, ${names[f[i]]} finger` : 'open'}`).join('; ');
+}
+function renderChord() {
+  const list = voicings(chordRoot, chordType);
+  way = Math.min(way, list.length - 1);
+  const v = list[way], f = v.fs[finger = Math.min(finger, v.fs.length - 1)], root = rootName(chordRoot, chordType);
+  document.querySelectorAll('#roots button').forEach((b, i) => { b.classList.toggle('on', i === chordRoot); b.setAttribute('aria-pressed', i === chordRoot); });
+  document.querySelectorAll('#types button[data-type]').forEach(b => { b.classList.toggle('on', b.dataset.type === chordType); b.setAttribute('aria-pressed', b.dataset.type === chordType); });
+  const other = !MAIN_TYPES.includes(chordType);
+  $('typeMore').classList.toggle('on', other);
+  $('typeMore').textContent = other ? TYPES[chordType][0] : 'More';
+  document.querySelectorAll('#typeOptions .opt').forEach(b => { b.classList.toggle('on', b.dataset.type === chordType); b.lastChild.textContent = rootName(chordRoot, b.dataset.type) + TYPES[b.dataset.type][0]; });
+  setText('chordName', chordName());
+  setText('chordInfo', `${TYPES[chordType][1]} · ${TYPES[chordType][2].split(' ').map(tone).map(t => spell(root, t.pc, t.deg)).join(' ')}`);
+  $('board').innerHTML = fretSvg(v, f, true);
+  $('boardBtn').setAttribute('aria-label', `Play ${chordName()}. ${spoken(v, f)}`);
+  setText('wayLabel', `Way ${way + 1} of ${list.length}`);
+  $('fingersRow').innerHTML = '';
+  setText('fingerLabel', v.fs.length > 1 ? 'Finger options' : 'Fingers');
+  v.fs.forEach((x, i) => {
+    const b = document.createElement('button'); b.type = 'button';
+    const order = lefty ? [...x].reverse() : x;
+    b.textContent = order.map(n => n || '·').join(' ');
+    b.className = i === finger ? 'on' : '';
+    b.setAttribute('aria-pressed', i === finger);
+    b.setAttribute('aria-label', `Finger option ${i + 1}: ${spoken(v, x)}`);
+    b.addEventListener('click', () => { finger = i; renderChord(); $('fingersRow').children[i].focus({ preventScroll: true }); playChord(); });
+    $('fingersRow').append(b);
+  });
+  $('ways').innerHTML = '';
+  list.forEach((w, i) => {
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = i === way ? 'on' : '';
+    b.setAttribute('aria-pressed', i === way);
+    b.setAttribute('aria-label', `Way ${i + 1}: ${spoken(w, w.fs[0])}`);
+    b.innerHTML = `<svg viewBox="0 0 220 200" aria-hidden="true">${fretSvg(w, w.fs[0], false)}</svg>`;
+    b.addEventListener('click', () => { way = i; finger = 0; const x = $('ways').scrollLeft; renderChord(); $('ways').scrollLeft = x; playChord(); });
+    $('ways').append(b);
+  });
+  setText('chordNote', (v.rootless ? `The root (${root}) is left out of this shape. ` : '') + (v.noFifth ? 'The fifth is left out of this shape. ' : '') + '1 index, 2 middle, 3 ring, 4 little. ○ open string.' + (tuningKey === 'high' || tuningKey === 'low' ? '' : ' Chords are for G C E A tuning.'));
+}
+function playChord(how = 'down') {
+  session('playback');
+  const v = voicings(chordRoot, chordType)[way], open = chordOpen(), gap = how === 'slow' ? 0.45 : 0.04;
+  let order = [0, 1, 2, 3];                 // down strum: G string first
+  if (how === 'up') order.reverse();
+  strum(order.map(i => open[i] + v.shape[i]), gap);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  order.forEach((i, n) => {
+    const w = document.querySelector(`#board .wire[data-i="${i}"]`);
+    if (!w || !w.animate) return;
+    w.getAnimations().forEach(x => x.cancel());
+    const shake = [0, 3, -3, 2.5, -2.5, 2, -2, 1, -1, 0].map(x => ({ transform: `translateX(${x}px)`, stroke: '#FF3038' }));
+    w.animate(shake, { duration: 420, delay: 20 + n * gap * 1000 });
+  });
+}
+function pickChord(root, type) {
+  chordRoot = root; chordType = type; way = finger = 0;
+  save('chordRoot', root); save('chordType', type);
+  renderChord(); $('ways').scrollLeft = 0; playChord();
+}
+ROOTS.forEach(([n], i) => {
+  const b = document.createElement('button'); b.type = 'button';
+  b.textContent = n;
+  if (SHARP[n]) { const s = document.createElement('small'); s.textContent = SHARP[n]; b.append(s); }
+  b.addEventListener('click', () => pickChord(i, chordType));
+  $('roots').append(b);
+});
+MAIN_TYPES.forEach(t => {
+  const b = document.createElement('button'); b.type = 'button'; b.dataset.type = t;
+  b.textContent = { maj: 'Major', min: 'Minor' }[t] || TYPES[t][0];
+  b.addEventListener('click', () => pickChord(chordRoot, t));
+  $('types').insertBefore(b, $('typeMore'));
+});
+['maj', 'min', '7', 'm7', 'maj7', ...Object.keys(TYPES)].filter((t, i, a) => a.indexOf(t) === i && !MAIN_TYPES.includes(t)).forEach(t => {
+  const b = document.createElement('button'), s = document.createElement('span');
+  b.type = 'button'; b.className = 'opt'; b.dataset.type = t;
+  b.append(TYPES[t][1], s);
+  b.addEventListener('click', () => { $('typeDialog').close(); pickChord(chordRoot, t); });
+  $('typeOptions').append(b);
+});
+$('typeMore').addEventListener('click', () => $('typeDialog').showModal());
+$('typeClose').addEventListener('click', () => $('typeDialog').close());
+$('boardBtn').addEventListener('click', () => playChord());
+$('strumDown').addEventListener('click', () => playChord());
+$('strumUp').addEventListener('click', () => playChord('up'));
+$('strumSlow').addEventListener('click', () => playChord('slow'));
+
+// ---- Tune / Chords ----
+function setView(v) {
+  if (v === 'chords') { if (selected !== null || stream) stopListening(); renderChord(); }
+  strumId++; stopPlucks();
+  $('app').hidden = v !== 'tune'; $('chords').hidden = v !== 'chords';
+  [['navTune', 'tune'], ['navChords', 'chords']].forEach(([id, k]) => {
+    $(id).classList.toggle('on', k === v);
+    if (k === v) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
+  });
+  save('view', v);
+}
+$('navTune').addEventListener('click', () => setView('tune'));
+$('navChords').addEventListener('click', () => setView('chords'));
+
 $('ticks').setAttribute('d', Array.from({ length: 11 }, (_, i) => i === 5 ? '' : `M${5 + i * 26} 12v14`).join(''));
 buildHead(); renderSettings(); rest(); draw();
+setView(load('view') === 'chords' ? 'chords' : 'tune');
 </script>
 </body>
 </html>
