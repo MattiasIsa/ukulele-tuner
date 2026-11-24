@@ -2,399 +2,430 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Uke Tuner">
-<meta name="theme-color" content="#16110e">
+<meta name="theme-color" content="#F1EEE4">
 <title>Uke Tuner</title>
 <style>
-/* One-screen instrument: big reading on top, needle gauge in the middle, four string buttons at the thumb. */
+/* Swiss layout: tuning tabs on top, the headstock as the control surface, a ruler scale below. */
 :root {
-  --bg: #16110e;        /* dark koa */
-  --panel: #231b16;
-  --line: #3a2e26;
-  --fg: #f4ebe0;
-  --muted: #a8988a;
-  --good: #63d69a;      /* in tune */
-  --off: #f2a541;       /* flat / sharp */
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, monospace;
-  color-scheme: dark;
+  --paper: #F1EEE4; --light: #FFFDF6; --ink: #111111; --muted: #65625A;
+  --red: #D9141E; --string: #FF3038;
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: light;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; margin: 0; }
+html, body { height: 100%; margin: 0; overscroll-behavior: none; }
 body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font);
-  -webkit-user-select: none; user-select: none;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--paper); color: var(--ink); font-family: var(--font);
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  padding: env(safe-area-inset-top, 0px) max(20px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(20px, env(safe-area-inset-left, 0px));
 }
-.app {
-  height: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex; flex-direction: column;
-  gap: 16px;
-  padding-block: 16px;
-}
-header { display: flex; justify-content: space-between; align-items: baseline; }
-header h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: .01em; }
-header .tuning { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .08em; }
-
-.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: var(--panel); border: 1.5px solid var(--line); }
-.mode { appearance: none; border: 0; border-radius: 12px; min-height: 44px; font: inherit; font-size: 16px; font-weight: 600; background: transparent; color: var(--muted); cursor: pointer; }
-.mode[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
-.mode:focus-visible { outline: 2px solid var(--good); outline-offset: 2px; }
-
-.reading {
-  flex: 1;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; min-height: 0;
-}
-.note {
-  font-size: clamp(96px, 32vw, 150px);
-  font-weight: 700; line-height: 1;
-  transition: color .15s;
-}
-.note sub { font-size: .28em; font-weight: 500; color: var(--muted); vertical-align: baseline; margin-left: 2px; }
-.hz { font-family: var(--mono); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
-
-.gauge { width: 100%; max-width: 100%; }
-.gauge svg { display: block; width: 100%; height: auto; }
-.status {
-  text-align: center; font-size: 22px; font-weight: 600; min-height: 1.4em;
-  transition: color .15s;
-}
-.state-good .note, .state-good .status { color: var(--good); }
-.state-off .note, .state-off .status { color: var(--off); }
-.state-idle .note { color: var(--fg); opacity: .35; }
-.state-idle .status { color: var(--muted); font-weight: 500; font-size: 17px; }
-
-.strings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.str {
-  appearance: none; border: 1.5px solid var(--line); background: var(--panel); color: var(--fg);
-  border-radius: 16px; padding: 14px 0 10px; font: inherit; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  transition: border-color .15s, background .15s;
-}
-.str b { font-size: 28px; line-height: 1; }
-.str small { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-.str.active { border-color: var(--fg); }
-.str.locked { border-color: var(--off); background: #2e2219; }
-.str.done b { color: var(--good); }
-.str:focus-visible, .btn:focus-visible { outline: 2px solid var(--good); outline-offset: 2px; }
-
-.row { display: flex; gap: 10px; }
-.btn {
-  flex: 1; appearance: none; border: 0; border-radius: 16px; padding: 16px; font: inherit;
-  font-size: 17px; font-weight: 600; cursor: pointer;
-  background: var(--fg); color: var(--bg);
-}
-.btn.secondary { background: var(--panel); color: var(--fg); border: 1.5px solid var(--line); }
-.hint { text-align: center; font-size: 13px; color: var(--muted); margin: 0; min-height: 1.2em; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; text-align: left; }
+.app { height: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 12px; padding-top: 8px; }
+.tabs button { min-height: 46px; font-size: clamp(14px, 4.4vw, 17px); color: var(--muted); border-bottom: 2px solid #CBC7BA; white-space: nowrap; }
+.tabs button.on { font-weight: 700; color: var(--ink); border-bottom: 4px solid var(--red); }
+#head { flex: 1; min-height: 0; width: 100%; display: block; margin-top: 8px; }
+#head text { font-family: var(--font); font-weight: 700; pointer-events: none; }
+.peg { cursor: pointer; touch-action: none; outline: none; }
+.peg:focus-visible .knob { stroke: var(--red); stroke-width: 4; }
+.panel { border-top: 2px solid var(--ink); padding: 14px 0 12px; }
+.line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; min-height: 32px; font-size: clamp(20px, 6.2vw, 27px); font-weight: 700; letter-spacing: -.01em; }
+#status { min-width: 0; }
+#cents { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.off #status { color: var(--red); }
+#scale { display: block; width: 100%; height: auto; margin-top: 8px; overflow: visible; }
+#scale text { font-family: var(--font); font-size: 11px; fill: var(--muted); }
+#mark { transition: transform .12s linear; }
+.hint { margin: 8px 0 0; font-size: 14px; line-height: 1.3; min-height: 2.6em; color: var(--muted); }
+dialog { width: 100%; max-width: 480px; margin: auto auto 0; border: 0; border-top: 4px solid var(--red); padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--light); color: var(--ink); max-height: 90%; overflow-y: auto; }
+dialog::backdrop { background: rgba(17,17,17,.55); }
+dialog h2 { font-size: 20px; margin: 0 0 8px; }
+.opt { width: 100%; min-height: 52px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid #CBC7BA; font-size: 17px; }
+.opt span { color: var(--muted); font-size: 15px; white-space: nowrap; }
+.opt.on { font-weight: 700; } .opt.on span { color: var(--red); }
+.note { margin: 0; padding: 10px 0; font-size: 13px; line-height: 1.4; color: var(--muted); border-top: 1px solid #CBC7BA; }
+#close { width: 100%; min-height: 50px; margin-top: 8px; padding: 0 16px; background: var(--ink); color: var(--light); font-weight: 700; font-size: 17px; }
+button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+@media (max-height: 520px) { .hint { min-height: 0; } .panel { padding: 8px 0; } }
+@media (prefers-reduced-motion: reduce) { #mark { transition: none; } }
 </style>
 </head>
 <body>
-<main class="app state-idle" id="app">
-  <header>
-    <h1>Uke Tuner</h1>
-    <span class="tuning" id="tuning">G3 · C4 · E4 · A4</span>
-  </header>
-
-  <div class="modes" role="group" aria-label="G string tuning">
-    <button class="mode" id="modeLow" type="button">Low G</button>
-    <button class="mode" id="modeHigh" type="button">Normal G</button>
-  </div>
-
-  <section class="reading" aria-live="polite">
-    <div class="note" id="note">G<sub>3</sub></div>
-    <div class="hz" id="hz">&nbsp;</div>
-  </section>
-
-  <div class="gauge">
-    <svg viewBox="0 0 320 120" aria-hidden="true">
-      <g id="ticks"></g>
-      <text x="22" y="114" font-size="12" fill="#a8988a" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">−50</text>
-      <text x="298" y="114" font-size="12" fill="#a8988a" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">+50</text>
-      <line id="needle" x1="160" y1="100" x2="160" y2="16" stroke="#f4ebe0" stroke-width="4" stroke-linecap="round" style="transform-origin:160px 100px; transition: transform .12s linear"/>
-      <circle cx="160" cy="100" r="7" fill="#f4ebe0"/>
+<main class="app" id="app">
+  <nav class="tabs" aria-label="Tuning">
+    <button type="button" id="tabHigh">High G</button>
+    <button type="button" id="tabLow">Low G</button>
+    <button type="button" id="tabMore" aria-haspopup="dialog">More</button>
+  </nav>
+  <svg id="head" viewBox="0 84 270 346" preserveAspectRatio="xMidYMax meet" role="group" aria-label="Ukulele headstock"></svg>
+  <section class="panel">
+    <div class="line"><span id="status" role="status"></span><span id="cents"></span></div>
+    <svg id="scale" viewBox="0 0 270 54" aria-hidden="true">
+      <path id="ticks" stroke="#65625A" stroke-width="1.5"/>
+      <path d="M135 3v32" stroke="#111" stroke-width="2.5"/>
+      <g id="mark" visibility="hidden"><path id="markBar" d="M135 1v36" stroke="#D9141E" stroke-width="7"/></g>
+      <text x="4" y="52">−50</text><text x="135" y="52" text-anchor="middle">0</text><text x="266" y="52" text-anchor="end">+50</text>
     </svg>
-  </div>
-  <div class="status" id="status">Tap Start, then pluck a string</div>
-
-  <div class="strings" id="strings" role="group" aria-label="Strings"></div>
-  <p class="hint" id="hint">Tap a string to hear it and tune only that one</p>
-
-  <div class="row">
-    <button class="btn" id="start" type="button">Start</button>
-  </div>
+    <p class="hint" id="hint"></p>
+  </section>
 </main>
+<dialog id="more" aria-labelledby="moreTitle">
+  <h2 id="moreTitle">More tunings</h2>
+  <div id="options"></div>
+  <p class="note">Baritone, Canadian and low-string tunings usually need their own strings. Check before tightening.</p>
+  <button type="button" class="opt" id="lefty" role="switch">Left-handed layout<span></span></button>
+  <button type="button" id="close">Done</button>
+</dialog>
 
 <script>
-// A = 440 Hz. The G string is either low (G3, linear) or normal (G4, re-entrant, an octave higher).
-const G_STRINGS = {
-  low:  { name: 'G', oct: 3, freq: 196.00 },
-  high: { name: 'G', oct: 4, freq: 392.00 },
+// Strings are MIDI notes in order 4th, 3rd, 2nd, 1st. A4 (note 69) = 440 Hz.
+const TUNINGS = {
+  high:     { name: 'High G',         notes: [67, 60, 64, 69] },
+  low:      { name: 'Low G',          notes: [55, 60, 64, 69] },
+  d:        { name: 'D tuning',       notes: [69, 62, 66, 71] },
+  canadian: { name: 'Canadian',       notes: [57, 62, 66, 71] },
+  baritone: { name: 'Baritone',       notes: [50, 55, 59, 64] },
+  slack:    { name: 'Slack key',      notes: [67, 60, 64, 67] },
+  half:     { name: 'Half step down', notes: [66, 59, 63, 68] },
 };
-const STRINGS = [
-  G_STRINGS.low,
-  { name: 'C', oct: 4, freq: 261.63 },
-  { name: 'E', oct: 4, freq: 329.63 },
-  { name: 'A', oct: 4, freq: 440.00 },
-];
-const IN_TUNE_CENTS = 5;
+const NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const noteName = m => NAMES[m % 12];
+const noteFull = m => noteName(m) + (Math.floor(m / 12) - 1);
+const noteFreq = m => 440 * 2 ** ((m - 69) / 12);
+const IN_TUNE = 5, HOLD_MS = 350;
 
 const $ = id => document.getElementById(id);
-const app = $('app'), noteEl = $('note'), hzEl = $('hz'), statusEl = $('status'),
-      needle = $('needle'), startBtn = $('start'), hintEl = $('hint');
+const load = k => { try { return localStorage.getItem(k); } catch (_) { return null; } };
+const save = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
 
-// Gauge ticks
-(() => {
-  const g = $('ticks'), ns = 'http://www.w3.org/2000/svg';
-  for (let c = -50; c <= 50; c += 10) {
-    const a = (c / 50) * 60 * Math.PI / 180;
-    const r1 = c === 0 ? 70 : 76, r2 = 88;
-    const l = document.createElementNS(ns, 'line');
-    l.setAttribute('x1', 160 + r1 * Math.sin(a)); l.setAttribute('y1', 100 - r1 * Math.cos(a));
-    l.setAttribute('x2', 160 + r2 * Math.sin(a)); l.setAttribute('y2', 100 - r2 * Math.cos(a));
-    l.setAttribute('stroke', c === 0 ? '#63d69a' : '#5a4a3e');
-    l.setAttribute('stroke-width', c === 0 ? 4 : 2);
-    l.setAttribute('stroke-linecap', 'round');
-    g.appendChild(l);
+let tuningKey = load('tuning') || load('gMode');
+if (!Object.hasOwn(TUNINGS, tuningKey)) tuningKey = 'low';
+let lefty = load('lefty') === '1';
+let selected = null;        // string being tuned, or null
+let playing = null;         // string whose reference note is sounding
+let state = 'idle';         // idle | listening | off | good
+const tuned = new Set();
+const note = i => TUNINGS[tuningKey].notes[i];
+
+// ---- Headstock drawing ----
+const POS = [
+  { peg: [34, 272],  post: [92, 272],  nut: 105, end: [99, 272],  right: false },
+  { peg: [34, 166],  post: [98, 166],  nut: 123, end: [105, 166], right: false },
+  { peg: [236, 166], post: [172, 166], nut: 147, end: [165, 166], right: true },
+  { peg: [236, 272], post: [178, 272], nut: 165, end: [171, 272], right: true },
+];
+const KNOB = 'M60 -10C60 -22 46 -26 32 -26C16 -26 10 -16 10 0C10 16 16 26 32 26C46 26 60 22 60 10Z';
+const WOOD = `
+<path d="M96 340h78v92h-78z" fill="#3A3A3A"/>
+<path d="M84 122C84 102 104 106 112 96C120 84 150 84 158 96C166 106 186 102 186 122C186 152 190 162 190 192C190 222 198 242 198 284C198 318 174 322 174 344H96C96 322 72 318 72 284C72 242 80 222 80 192C80 162 84 152 84 122Z" fill="#141414"/>
+<path d="M90 124C91 110 108 113 116 102C122 93 148 93 154 102C162 113 179 110 180 124C180 152 184 162 184 192C184 222 192 242 192 284C192 312 170 316 168 338H102C100 316 78 312 78 284C78 242 86 222 86 192C86 162 90 152 90 124Z" fill="none" stroke="#777"/>
+<path d="M108 118C104 180 112 250 106 316M120 106C117 180 124 260 118 332M135 100C133 180 138 260 134 332M150 106C153 180 146 260 152 332M162 118C166 180 158 250 164 316" fill="none" stroke="#3A3A3A"/>
+<rect x="93" y="340" width="84" height="9" fill="#F2F0EA" stroke="#141414"/>
+<path d="M96 393h78" stroke="#D0D0D0" stroke-width="3"/>
+<g fill="#A6A6A6" stroke="#141414"><path d="M60 160h22v12H60zM60 266h14v12H60zM188 160h22v12h-22zM196 266h14v12h-14z"/><path fill="#D8D8D8" d="M74 155h8v22h-8zM66 261h8v22h-8zM188 155h8v22h-8zM196 261h8v22h-8z"/></g>`;
+
+function draw() {
+  const fx = x => lefty ? 270 - x : x;
+  const strings = POS.map((p, i) => {
+    const on = i === selected || i === playing;
+    const c = on ? (state === 'good' && playing === null ? '#FFFDF6' : '#FF3038') : '#C9C9C9';
+    const [px, py] = p.post, [ex, ey] = p.end;
+    return `<circle cx="${fx(px)}" cy="${py}" r="13" fill="#CFCFCF" stroke="#777"/>
+      <path d="M${fx(p.nut)} 432V344L${fx(ex)} ${ey}" fill="none" stroke="${c}" stroke-width="${on ? 6 : 1.5}"/>
+      <circle cx="${fx(px)}" cy="${py}" r="9" fill="none" stroke="${on ? c : '#141414'}" stroke-width="${on ? 4 : 1.5}"/>
+      <circle cx="${fx(px)}" cy="${py}" r="4" fill="#555"/>`;
+  }).join('');
+  $('headArt').innerHTML = WOOD + strings;
+  POS.forEach((p, i) => {
+    const on = i === selected || i === playing, right = p.right !== lefty;
+    const good = on && state === 'good' && playing === null;
+    const g = $('peg' + i), [knob, hit, label, tick] = g.children;
+    const x = fx(p.peg[0]);
+    knob.setAttribute('transform', `translate(${right ? 270 : 0} ${p.peg[1]}) scale(${right ? -1 : 1} 1)`);
+    knob.setAttribute('fill', good ? '#111111' : on ? '#D9141E' : '#FFFDF6');
+    hit.setAttribute('x', right ? 200 : 0); hit.setAttribute('y', p.peg[1] - 48);
+    label.textContent = noteName(note(i));
+    label.setAttribute('x', x); label.setAttribute('y', p.peg[1] + 10);
+    label.setAttribute('fill', on ? '#FFFFFF' : '#111111');
+    tick.textContent = tuned.has(i) ? '✓' : '';
+    tick.setAttribute('x', x); tick.setAttribute('y', p.peg[1] + 42);
+    g.setAttribute('aria-label', `${noteFull(note(i))}${tuned.has(i) ? ', tuned' : ''}`);
+    g.setAttribute('aria-pressed', i === selected);
+  });
+}
+
+function buildHead() {
+  $('head').innerHTML = '<g id="headArt"></g>' + POS.map((_, i) =>
+    `<g class="peg" id="peg${i}" role="button" tabindex="0"><path class="knob" d="${KNOB}" stroke="#141414" stroke-width="2"/><rect width="70" height="96" fill="transparent"/><text text-anchor="middle" font-size="28"></text><text text-anchor="middle" font-size="14" fill="#111"></text></g>`).join('');
+  POS.forEach((_, i) => {
+    const g = $('peg' + i);
+    let timer = 0, held = false, down = null;
+    g.addEventListener('pointerdown', e => {
+      if (down !== null || e.button) return;
+      down = e.pointerId; held = false;
+      try { g.setPointerCapture(e.pointerId); } catch (_) {}
+      timer = setTimeout(() => { held = true; holdStart(i); }, HOLD_MS);
+    });
+    const end = (e, cancelled) => {
+      if (e.pointerId !== down) return;
+      down = null; clearTimeout(timer);
+      if (held) holdEnd(!cancelled);
+      else if (!cancelled) tapPeg(i);
+      held = false;
+    };
+    g.addEventListener('pointerup', e => end(e, false));
+    g.addEventListener('pointercancel', e => end(e, true));
+    g.addEventListener('contextmenu', e => e.preventDefault());
+    g.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); tapPeg(i); }
+    });
+    // Screen readers activate with a click that has no pointer press before it
+    g.addEventListener('click', e => { if (e.detail === 0 && e.pointerType !== 'touch') tapPeg(i); });
+  });
+}
+
+// ---- Panel ----
+const setText = (id, t) => { if ($(id).textContent !== t) $(id).textContent = t; };
+function show(next, status, cents, hint) {
+  const changed = next !== state;
+  state = next;
+  $('app').classList.toggle('off', next === 'off');
+  setText('status', status);
+  setText('hint', hint);
+  setText('cents', cents === null ? '' : `${cents > 0 ? '+' : cents < 0 ? '−' : ''}${Math.abs(cents)} cents`);
+  $('mark').setAttribute('visibility', cents === null ? 'hidden' : 'visible');
+  if (cents !== null) {
+    $('mark').style.transform = `translateX(${Math.max(-50, Math.min(50, cents)) / 50 * 130}px)`;
+    $('markBar').setAttribute('stroke', next === 'good' ? '#111111' : '#D9141E');
   }
-})();
-
-// String buttons
-let locked = null;           // index of string chosen by the player, or null for auto
-const tunedOk = new Set();
-const strWrap = $('strings');
-function labelString(b, s) {
-  b.innerHTML = `<b>${s.name}</b><small>${s.name}${s.oct}</small>`;
-  b.setAttribute('aria-label', `${s.name}${s.oct}, ${s.freq} hertz`);
+  if (changed) draw();
 }
-STRINGS.forEach((_, i) => {
-  const b = document.createElement('button');
-  b.type = 'button'; b.className = 'str'; b.id = 'str' + i;
-  labelString(b, STRINGS[i]);
-  b.addEventListener('click', () => {
-    const s = STRINGS[i]; // looked up on tap: the G string can change
-    locked = (locked === i) ? null : i;
-    if (locked !== null) playTone(s.freq);
-    renderStrings(lastIndex);
-    hintEl.textContent = locked === null
-      ? 'Auto mode: pluck any string'
-      : `Tuning ${s.name} only. Tap it again for auto mode`;
-    if (!running) showTarget(i);
-  });
-  strWrap.appendChild(b);
-});
-
-function renderStrings(activeIdx) {
-  STRINGS.forEach((_, i) => {
-    const b = $('str' + i);
-    b.classList.toggle('locked', locked === i);
-    b.classList.toggle('active', locked === null && activeIdx === i);
-    b.classList.toggle('done', tunedOk.has(i));
-  });
-}
-function showTarget(i) {
-  const s = STRINGS[i];
-  noteEl.innerHTML = `${s.name}<sub>${s.oct}</sub>`;
-  hzEl.textContent = `target ${s.freq.toFixed(2)} Hz`;
+function rest(message, hint) {
+  if (selected === null) show('idle', message || 'Tap a peg to tune', null, hint || 'Hold a peg to hear its note');
+  else {
+    const n = noteName(note(selected));
+    show('listening', `Pluck ${n}`, null, `Listening. Tap ${n} to stop`);
+  }
 }
 
 // ---- Pitch detection (YIN) ----
 function detectPitch(buf, sr) {
-  const minF = 80, maxF = 1000;
-  const maxTau = Math.min(Math.floor(sr / minF), Math.floor(buf.length / 2));
-  const minTau = Math.floor(sr / maxF);
-  const W = buf.length - maxTau;
+  const maxTau = Math.min(Math.floor(sr / 80), Math.floor(buf.length / 2));
+  const minTau = Math.floor(sr / 1000), W = buf.length - maxTau;
   let rms = 0;
   for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-  rms = Math.sqrt(rms / buf.length);
-  if (rms < 0.008) return { freq: -1, rms };
-
-  const d = new Float32Array(maxTau + 1);
+  if (Math.sqrt(rms / buf.length) < 0.008) return -1;
+  const cm = new Float32Array(maxTau + 1); cm[0] = 1;
+  let run = 0;
   for (let tau = 1; tau <= maxTau; tau++) {
     let sum = 0;
     for (let i = 0; i < W; i++) { const x = buf[i] - buf[i + tau]; sum += x * x; }
-    d[tau] = sum;
+    run += sum; cm[tau] = run ? sum * tau / run : 1;
   }
-  // cumulative mean normalized difference
-  const cm = new Float32Array(maxTau + 1); cm[0] = 1;
-  let run = 0;
-  for (let tau = 1; tau <= maxTau; tau++) { run += d[tau]; cm[tau] = run ? d[tau] * tau / run : 1; }
-
-  const TH = 0.15;
   let tau = -1;
   for (let t = minTau; t < maxTau; t++) {
-    if (cm[t] < TH) { while (t + 1 < maxTau && cm[t + 1] < cm[t]) t++; tau = t; break; }
+    if (cm[t] < 0.15) { while (t + 1 < maxTau && cm[t + 1] < cm[t]) t++; tau = t; break; }
   }
-  if (tau < 0) return { freq: -1, rms };
-  // parabolic interpolation
-  const x0 = cm[tau - 1], x1 = cm[tau], x2 = cm[tau + 1] ?? x1;
-  const den = x0 + x2 - 2 * x1;
-  const better = den ? tau + (x0 - x2) / (2 * den) : tau;
-  return { freq: sr / better, rms, clarity: 1 - x1 };
-}
-window.detectPitch = detectPitch; // exposed for testing
-
-const cents = (f, ref) => 1200 * Math.log2(f / ref);
-function nearestString(f) {
-  let best = 0, bestAbs = Infinity;
-  STRINGS.forEach((s, i) => { const c = Math.abs(cents(f, s.freq)); if (c < bestAbs) { bestAbs = c; best = i; } });
-  return best;
+  if (tau < 0) return -1;
+  const a = cm[tau - 1], b = cm[tau], c = cm[tau + 1], den = a + c - 2 * b;
+  return sr / (den ? tau + (a - c) / (2 * den) : tau);
 }
 
-// ---- Audio ----
-let ctx = null, analyser = null, stream = null, running = false, rafId = 0, wakeLock = null;
-let history = [], lastIndex = null, lastHeard = 0, inTuneSince = 0;
+// ---- Microphone ----
+let ctx = null, analyser = null, source = null, stream = null, opening = false, timer = 0, wake = null;
+let recent = [], lastHeard = 0, goodSince = 0;
+const buf = new Float32Array(4096);
 
-async function start() {
+function audio() {
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+function session(type) { try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (_) {} }
+function resetReading() { recent = []; lastHeard = 0; goodSince = 0; }
+
+function tapPeg(i) {
+  if (selected === i) { stopListening(); return; }
+  selected = i; resetReading(); rest(); draw();
+  if (!stream && !opening) openMic();
+}
+async function openMic() {
+  opening = true;
   try {
-    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-    await ctx.resume();
-    stream = await navigator.mediaDevices.getUserMedia({
+    session('play-and-record');
+    const resumed = audio().resume();
+    if (!navigator.mediaDevices) throw new Error('unavailable');
+    const s = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
     });
-    const src = ctx.createMediaStreamSource(stream);
-    analyser = ctx.createAnalyser();
-    analyser.fftSize = 4096;
-    src.connect(analyser);
-    running = true;
-    startBtn.textContent = 'Stop';
-    startBtn.classList.add('secondary');
-    setIdle('Pluck a string');
-    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch (_) {}
-    loop();
+    if (selected === null) { s.getTracks().forEach(t => t.stop()); return; } // stopped while asking
+    stream = s;
+    s.getTracks().forEach(t => { t.enabled = playing === null; t.onended = () => { if (stream === s) stopListening(); }; });
+    await resumed;
+    if (stream !== s) return;
+    source = ctx.createMediaStreamSource(s);
+    analyser = ctx.createAnalyser(); analyser.fftSize = 4096;
+    source.connect(analyser);
+    keepAwake();
+    clearInterval(timer); timer = setInterval(listen, 40);
   } catch (err) {
-    const insecure = !window.isSecureContext;
-    setIdle(insecure ? 'Open this page over https to use the mic'
-                     : 'Allow microphone access to tune');
-    hintEl.textContent = insecure ? '' : 'Settings › Safari › Microphone, then try again';
+    const denied = err && err.name === 'NotAllowedError';
+    stopListening(denied ? 'Microphone is off' : 'No microphone',
+      !window.isSecureContext ? 'Open this page over https to use the microphone.'
+      : denied ? 'Allow the microphone in Safari’s settings for this site, then tap a peg again.'
+      : 'The microphone could not start. Close other apps using it and tap a peg again.');
+  } finally {
+    opening = false;
+    if (selected !== null && !stream) openMic(); // picked again while the prompt was closing
   }
 }
-function stop() {
-  running = false;
-  cancelAnimationFrame(rafId);
-  stream?.getTracks().forEach(t => t.stop());
-  stream = null;
-  try { wakeLock?.release(); } catch (_) {}
-  startBtn.textContent = 'Start';
-  startBtn.classList.remove('secondary');
-  setIdle('Tap Start, then pluck a string');
-  setNeedle(0);
+async function keepAwake() {
+  try {
+    const w = await navigator.wakeLock.request('screen');
+    if (stream) wake = w; else w.release();
+  } catch (_) {}
 }
-startBtn.addEventListener('click', () => running ? stop() : start());
-document.addEventListener('visibilitychange', () => { if (document.hidden && running) stop(); });
-
-const buf = new Float32Array(4096);
-let frame = 0;
-function loop() {
-  if (!running) return;
-  rafId = requestAnimationFrame(loop);
-  if (frame++ % 2) return; // ~30 readings per second is plenty
+function stopListening(message, hint) {
+  selected = null;
+  clearInterval(timer);
+  const s = stream; stream = null;
+  if (s) s.getTracks().forEach(t => t.stop());
+  if (source) source.disconnect();
+  source = analyser = null;
+  if (wake) { wake.release().catch(() => {}); wake = null; }
+  resetReading(); rest(message, hint); draw();
+}
+function listen() {
+  if (!stream || !analyser) return;
+  if (playing !== null || performance.now() < quietUntil) return;
   analyser.getFloatTimeDomainData(buf);
-  const { freq } = detectPitch(buf, ctx.sampleRate);
-  const now = performance.now();
-  if (freq > 0) {
-    history.push(freq); if (history.length > 5) history.shift();
-    const f = [...history].sort((a, b) => a - b)[history.length >> 1];
+  const f = detectPitch(buf, ctx.sampleRate), now = performance.now();
+  if (f > 0) {
+    recent.push(f); if (recent.length > 5) recent.shift();
     lastHeard = now;
-    update(f, now);
-  } else if (now - lastHeard > 900) {
-    history = [];
-    setIdle('Pluck a string');
+    reading([...recent].sort((a, b) => a - b)[recent.length >> 1], now);
+  } else if (lastHeard && now - lastHeard > 300) {
+    recent = []; goodSince = 0;
+    if (now - lastHeard > 2000) { lastHeard = 0; rest(); }
   }
 }
-
-function update(f, now) {
-  const idx = locked ?? nearestString(f);
-  const s = STRINGS[idx];
-  let c = cents(f, s.freq);
-  lastIndex = idx;
-  renderStrings(idx);
-  noteEl.innerHTML = `${s.name}<sub>${s.oct}</sub>`;
-  hzEl.textContent = `${f.toFixed(1)} Hz  ·  ${c >= 0 ? '+' : '−'}${Math.abs(c).toFixed(0)} cents`;
-  setNeedle(c);
-
-  app.classList.remove('state-idle', 'state-good', 'state-off');
-  if (Math.abs(c) > 300) {
-    app.classList.add('state-off');
-    statusEl.textContent = c < 0 ? 'Way too low ↑' : 'Way too high ↓';
-    inTuneSince = 0;
-  } else if (Math.abs(c) <= IN_TUNE_CENTS) {
-    app.classList.add('state-good');
-    statusEl.textContent = 'In tune ✓';
-    if (!inTuneSince) inTuneSince = now;
-    if (now - inTuneSince > 600) { tunedOk.add(idx); renderStrings(idx); }
-  } else {
-    app.classList.add('state-off');
-    statusEl.textContent = c < 0 ? 'Too low · tighten ↑' : 'Too high · loosen ↓';
-    inTuneSince = 0;
+function reading(f, now) {
+  if (selected === null) return;
+  const exact = 1200 * Math.log2(f / noteFreq(note(selected))), c = Math.round(exact);
+  const n = noteName(note(selected)), stop = `Listening. Tap ${n} to stop`;
+  if (Math.abs(exact) <= IN_TUNE) {
+    show('good', `${n} in tune`, c, stop);
+    if (!goodSince) goodSince = now;
+    if (now - goodSince > 600 && !tuned.has(selected)) { tuned.add(selected); draw(); }
+    return;
   }
-}
-function setNeedle(c) {
-  const clamped = Math.max(-50, Math.min(50, c));
-  needle.style.transform = `rotate(${clamped / 50 * 60}deg)`;
-  needle.setAttribute('stroke', Math.abs(c) <= IN_TUNE_CENTS && c !== 0 ? '#63d69a' : '#f4ebe0');
-}
-function setIdle(msg) {
-  app.classList.remove('state-good', 'state-off');
-  app.classList.add('state-idle');
-  statusEl.textContent = msg;
-  hzEl.innerHTML = '&nbsp;';
-  setNeedle(0);
-  inTuneSince = 0;
+  goodSince = 0;
+  if (Math.abs(exact) > 50 && tuned.delete(selected)) draw();
+  if (exact < -250) show('off', `${n} far too low`, c, 'Check you plucked the right string and chose the right tuning before tightening.');
+  else if (exact > 250) show('off', `${n} far too high`, c, 'Check you plucked the right string and chose the right tuning.');
+  else show('off', exact < 0 ? `Tighten ${n}` : `Loosen ${n}`, c, stop);
 }
 
-// Reference tone: a short plucked-sounding note
-function playTone(freq) {
-  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-  ctx.resume();
-  const t = ctx.currentTime;
-  const out = ctx.createGain();
+// ---- Hold a peg to hear its note ----
+let voice = null, quietUntil = 0, pendingNote = null;
+function startVoice(f) {
+  const t = ctx.currentTime, out = ctx.createGain();
   out.gain.setValueAtTime(0.0001, t);
-  out.gain.exponentialRampToValueAtTime(0.5, t + 0.01);
-  out.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
-  const lp = ctx.createBiquadFilter();
-  lp.type = 'lowpass'; lp.frequency.setValueAtTime(freq * 6, t);
-  lp.frequency.exponentialRampToValueAtTime(freq * 1.5, t + 1.5);
-  [[1, 'triangle', 1], [2, 'sine', 0.25]].forEach(([mult, type, g]) => {
+  out.gain.exponentialRampToValueAtTime(0.35, t + 0.03);
+  out.connect(ctx.destination);
+  const oscs = [[1, 'triangle', 1], [2, 'sine', 0.25]].map(([m, type, g]) => {
     const o = ctx.createOscillator(), og = ctx.createGain();
-    o.type = type; o.frequency.value = freq * mult; og.gain.value = g;
-    o.connect(og).connect(lp);
-    o.start(t); o.stop(t + 2.3);
+    o.type = type; o.frequency.value = f * m; og.gain.value = g;
+    o.connect(og).connect(out); o.start(t);
+    return o;
   });
-  lp.connect(out).connect(ctx.destination);
+  return { out, oscs };
+}
+function stopVoice(v, after) {
+  const t = ctx.currentTime + after;
+  v.out.gain.setValueAtTime(0.35, Math.max(t, ctx.currentTime + 0.03));
+  v.out.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+  v.oscs.forEach(o => o.stop(t + 0.2));
+}
+function holdStart(i) {
+  if (voice) { stopVoice(voice, 0); voice = null; }
+  playing = i; pendingNote = null; resetReading();
+  if (stream) stream.getTracks().forEach(t => { t.enabled = false; });
+  else session('playback');
+  const c = audio(), f = noteFreq(note(i));
+  c.resume().catch(() => {});
+  if (c.state === 'running') voice = startVoice(f);
+  else pendingNote = f; // iPhone may only allow sound once the finger lifts
+  show('listening', `Playing ${noteFull(note(i))}`, null, `${f.toFixed(1)} Hz. Let go to stop`);
+  draw();
+}
+function holdEnd(play) {
+  const f = pendingNote; pendingNote = null;
+  let tail = 250;
+  if (voice) { stopVoice(voice, 0); voice = null; }
+  else if (f && play) {
+    tail = 1700;
+    ctx.resume().then(() => stopVoice(startVoice(f), 1.2)).catch(() => {});
+  }
+  playing = null; quietUntil = performance.now() + tail; resetReading();
+  setTimeout(() => { if (playing === null && stream) stream.getTracks().forEach(t => { t.enabled = true; }); }, tail);
+  rest(); draw();
 }
 
-// Low G / Normal G switch, remembered on this phone
-function setMode(mode) {
-  STRINGS[0] = G_STRINGS[mode];
-  $('modeLow').setAttribute('aria-pressed', mode === 'low');
-  $('modeHigh').setAttribute('aria-pressed', mode === 'high');
-  $('tuning').textContent = STRINGS.map(s => s.name + s.oct).join(' · ');
-  labelString($('str0'), STRINGS[0]);
-  tunedOk.delete(0);           // a different G has to be tuned again
-  history = []; lastIndex = null;
-  setIdle(running ? 'Pluck a string' : 'Tap Start, then pluck a string');
-  renderStrings(null);
-  showTarget(locked ?? 0);
-  try { localStorage.setItem('gMode', mode); } catch (_) {}
+// ---- Tunings and settings ----
+function renderSettings() {
+  const main = tuningKey === 'high' || tuningKey === 'low';
+  [['tabHigh', tuningKey === 'high'], ['tabLow', tuningKey === 'low'], ['tabMore', !main]].forEach(([id, on]) => {
+    $(id).classList.toggle('on', on);
+    $(id).setAttribute('aria-pressed', on);
+  });
+  $('tabMore').removeAttribute('aria-pressed');
+  $('tabMore').textContent = main ? 'More' : TUNINGS[tuningKey].name;
+  $('tabMore').setAttribute('aria-label', main ? 'More tunings and settings' : `${TUNINGS[tuningKey].name}, more tunings and settings`);
+  document.querySelectorAll('#options .opt').forEach(b => {
+    b.classList.toggle('on', b.dataset.key === tuningKey);
+    b.setAttribute('aria-pressed', b.dataset.key === tuningKey);
+  });
+  $('lefty').setAttribute('aria-checked', lefty);
+  $('lefty').classList.toggle('on', lefty);
+  $('lefty').querySelector('span').textContent = lefty ? 'On' : 'Off';
 }
-$('modeLow').addEventListener('click', () => setMode('low'));
-$('modeHigh').addEventListener('click', () => setMode('high'));
-let savedMode = null;
-try { savedMode = localStorage.getItem('gMode'); } catch (_) {}
-setMode(savedMode === 'high' ? 'high' : 'low');
+function setTuning(key) {
+  if (key !== tuningKey) {
+    const before = TUNINGS[tuningKey].notes, after = TUNINGS[key].notes;
+    after.forEach((m, i) => { if (m !== before[i]) tuned.delete(i); }); // unchanged strings stay tuned
+    tuningKey = key; save('tuning', key);
+    resetReading(); rest();
+  }
+  renderSettings(); draw();
+}
+Object.keys(TUNINGS).slice(2).forEach(key => {
+  const b = document.createElement('button'), s = document.createElement('span');
+  b.type = 'button'; b.className = 'opt'; b.dataset.key = key;
+  s.textContent = TUNINGS[key].notes.map(noteFull).join(' ');
+  b.append(TUNINGS[key].name, s);
+  b.addEventListener('click', () => { setTuning(key); $('more').close(); });
+  $('options').append(b);
+});
+$('tabHigh').addEventListener('click', () => setTuning('high'));
+$('tabLow').addEventListener('click', () => setTuning('low'));
+$('tabMore').addEventListener('click', () => $('more').showModal());
+$('close').addEventListener('click', () => $('more').close());
+$('more').addEventListener('click', e => { if (e.target === $('more') && e.clientY < $('more').getBoundingClientRect().top) $('more').close(); });
+$('lefty').addEventListener('click', () => { lefty = !lefty; save('lefty', lefty ? '1' : '0'); renderSettings(); draw(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) return;
+  if (voice) { stopVoice(voice, 0); voice = null; }
+  playing = null; pendingNote = null;
+  stopListening();
+});
+
+$('ticks').setAttribute('d', Array.from({ length: 11 }, (_, i) => i === 5 ? '' : `M${5 + i * 26} 12v14`).join(''));
+buildHead(); renderSettings(); rest(); draw();
 </script>
 </body>
 </html>
