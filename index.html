@@ -27,10 +27,10 @@ body {
 button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; text-align: left; }
 [hidden] { display: none !important; }
 body { display: flex; flex-direction: column; }
-.app, .chords { flex: 1; min-height: 0; width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
-.views { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 480px; margin: 0 auto; border-top: 2px solid var(--ink); }
-.views button { min-height: 50px; font-size: 17px; color: var(--muted); border-top: 4px solid transparent; margin-top: -2px; }
-.views button.on { color: var(--ink); font-weight: 700; border-top-color: var(--red); }
+.app, .chords, .scores { flex: 1; min-height: 0; width: 100%; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; }
+.views { display: flex; justify-content: space-between; align-items: stretch; flex: none; width: 100%; max-width: 480px; margin: 0 auto; border-bottom: 4px solid var(--ink); }
+.views button { min-height: 60px; display: flex; align-items: flex-end; padding: 0 2px 8px; font-size: 22px; line-height: 1; font-weight: 700; letter-spacing: -.02em; color: var(--ink); margin-bottom: -4px; border-bottom: 4px solid var(--ink); }
+.views button.on { font-size: 38px; color: var(--red); padding-bottom: 5px; border-bottom: 9px solid var(--red); margin-bottom: -6px; }
 .chords { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 0 12px; }
 #roots { display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #CBC7BA; border-left: 1px solid #CBC7BA; flex: none; }
 #roots button { min-height: 44px; font-size: 18px; font-weight: 700; text-align: center; border-right: 1px solid #CBC7BA; border-bottom: 1px solid #CBC7BA; line-height: 1.05; }
@@ -57,6 +57,34 @@ body { display: flex; flex-direction: column; }
 #ways { display: flex; gap: 8px; overflow-x: auto; flex: none; margin-top: 4px; padding-bottom: 4px; }
 #ways button { flex: 0 0 66px; border: 2px solid #CBC7BA; padding: 3px; }
 #ways .on { border-color: var(--red); } #ways svg { display: block; width: 100%; }
+.scores { display: block; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 20px; }
+#songList h2 { font-size: 26px; margin: 18px 0 8px; letter-spacing: -.01em; }
+.songrow { width: 100%; min-height: 58px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid #CBC7BA; font-size: 17px; font-weight: 700; }
+.songrow span { min-width: 0; } .songrow span:last-child { text-align: right; color: var(--red); font-size: 15px; flex: none; }
+.songrow small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+#songBack { min-height: 44px; font-size: 15px; color: var(--muted); }
+#songTitle { margin: 0; font-size: 28px; line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; }
+.sub { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
+#player { position: sticky; top: 0; z-index: 2; background: var(--paper); padding: 8px 0; border-bottom: 2px solid var(--ink); }
+.prow { display: flex; gap: 8px; align-items: stretch; } .prow + .prow { margin-top: 8px; }
+.prow button { min-height: 44px; padding: 0 6px; text-align: center; font-size: 14px; border: 2px solid var(--ink); flex: 1 1 auto; white-space: nowrap; }
+.prow button.on { background: var(--ink); color: var(--light); font-weight: 700; }
+#playSong { flex: 2 1 auto; background: var(--red); border-color: var(--red); color: #fff; font-size: 18px; font-weight: 700; }
+#speeds { display: contents; }
+#songStatus { display: block; min-height: 1.3em; font-size: 14px; font-weight: 700; color: var(--red); margin-top: 6px; }
+#songChords { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 4px; }
+#songChords button { flex: 0 0 72px; border: 2px solid #CBC7BA; padding: 4px; text-align: center; font-size: 17px; }
+#songChords svg { display: block; width: 100%; } #songChords text { font-family: var(--font); font-weight: 700; }
+#songChords .now { border-color: var(--red); background: var(--light); }
+.lyric { display: flex; flex-wrap: wrap; align-items: flex-end; margin-top: 10px; font-size: 20px; }
+.syl { display: inline-flex; flex-direction: column; align-items: flex-start; margin-right: 6px; cursor: pointer; line-height: 1.25; }
+.syl.join { margin-right: 1px; } .syl i { height: 30px; }
+.chordtag { min-height: 30px; min-width: 34px; padding: 0 4px 0 0; font-size: 17px; font-weight: 700; color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+.syl.now > span { background: var(--red); color: #fff; }
+.tabline { margin-top: 12px; } .tabline svg { display: block; width: 100%; } .tabline text { font-family: var(--font); font-weight: 700; } .tabline .tabword { font-weight: 400; }
+.tabchord { cursor: pointer; } .tabnote.now circle { fill: var(--red); } .tabnote.now circle + text { fill: #fff; }
+#sheetBoard { display: block; width: 100%; height: 250px; } #sheetBoard text { font-family: var(--font); font-weight: 700; }
+#chordSheet h2 { font-size: 38px; margin: 0; line-height: 1; }
 #chordNote { margin: 6px 0 0; font-size: 13px; line-height: 1.35; color: var(--muted); flex: none; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 12px; padding-top: 8px; }
 .tabs button { min-height: 46px; font-size: clamp(14px, 4.4vw, 17px); color: var(--muted); border-bottom: 2px solid #CBC7BA; white-space: nowrap; }
@@ -88,6 +116,7 @@ button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 </style>
 </head>
 <body>
+<nav class="views" aria-label="Sections"><button type="button" id="navTune">Tune</button><button type="button" id="navChords">Chords</button><button type="button" id="navScores">Scores</button></nav>
 <main class="app" id="app">
   <nav class="tabs" aria-label="Tuning">
     <button type="button" id="tabHigh">High G</button>
@@ -117,7 +146,31 @@ button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
   <div id="ways" role="group" aria-label="Ways to play this chord"></div>
   <p id="chordNote"></p>
 </main>
-<nav class="views" aria-label="Sections"><button type="button" id="navTune">Tune</button><button type="button" id="navChords">Chords</button></nav>
+<main class="scores" id="scores" hidden>
+  <div id="songList"></div>
+  <div id="songPage" hidden>
+    <button type="button" id="songBack">← All songs</button>
+    <h2 id="songTitle"></h2>
+    <p class="sub" id="songBy"></p>
+    <div class="prow"><button type="button" id="viewSing">Sing along</button><button type="button" id="viewTab">Tab</button></div>
+    <div id="songChords" role="group" aria-label="Chords in this song"></div>
+    <p class="sub" id="strumText"></p>
+    <div id="player">
+      <div class="prow"><button type="button" id="playSong">Play</button><span id="speeds"><button type="button" data-speed="0.6">Slow</button><button type="button" data-speed="0.8">Medium</button><button type="button" data-speed="1">Full</button></span></div>
+      <div class="prow" role="group" aria-label="What the app plays"><button type="button" id="partVoice">Singing</button><button type="button" id="partStrum">Strumming</button><button type="button" id="partPick">Uke melody</button></div>
+      <span id="songStatus"></span>
+    </div>
+    <div id="songBody"></div>
+  </div>
+</main>
+<dialog id="chordSheet" aria-labelledby="sheetName">
+  <h2 id="sheetName"></h2>
+  <svg id="sheetBoard" viewBox="0 0 240 240" role="img"></svg>
+  <div class="strums" style="grid-template-columns:1fr 1fr"><button type="button" id="sheetStrum">Strum ↓</button><button type="button" id="sheetSlow">Note by note</button></div>
+  <p class="note" id="sheetNote" style="border:0"></p>
+  <button type="button" class="opt" id="sheetAll">See every way to play it<span>→</span></button>
+  <button type="button" id="sheetClose" class="close">Done</button>
+</dialog>
 <dialog id="typeDialog" aria-labelledby="typeTitle">
   <h2 id="typeTitle">More chord types</h2>
   <div id="typeOptions"></div>
@@ -656,7 +709,7 @@ const chordName = () => rootName(chordRoot, chordType) + TYPES[chordType][0];
 // On a D- or baritone-tuned uke the shapes differ, so chords always use G C E A
 const chordOpen = () => TUNINGS[tuningKey === 'high' ? 'high' : tuningKey === 'low' ? 'low' : 'high'].notes;
 
-function fretSvg(v, f, big) {
+function fretSvg(v, f, big, root = chordRoot, type = chordType) {
   const s = v.shape, first = v.hi <= 4 ? 1 : v.lo, rows = 4;
   const X = i => 45 + (lefty ? 3 - i : i) * 50, top = big ? 34 : 14, H = 44, Y = fr => top + (fr - first + 0.5) * H, bottom = top + rows * H;
   let o = `<rect x="27" y="${top}" width="186" height="${rows * H}" fill="#141414"/>`;
@@ -677,8 +730,8 @@ function fretSvg(v, f, big) {
       if (big) o += `<text x="${X(i)}" y="${Y(s[i]) + 7.5}" text-anchor="middle" font-size="21" fill="#fff">${f[i]}</text>`;
     } else if (big) o += `<circle cx="${X(i)}" cy="${top - 21}" r="7" fill="none" stroke="#111" stroke-width="2.5"/>`;
     if (big) {
-      const t = TYPES[chordType][2].split(' ').map(tone).find(t => (t.pc + chordRoot) % 12 === (OPEN[i] + s[i]) % 12);
-      o += `<text x="${X(i)}" y="${bottom + 22}" text-anchor="middle" font-size="17" fill="#111">${spell(rootName(chordRoot, chordType), t.pc, t.deg)}</text>`;
+      const t = TYPES[type][2].split(' ').map(tone).find(t => (t.pc + root) % 12 === (OPEN[i] + s[i]) % 12);
+      o += `<text x="${X(i)}" y="${bottom + 22}" text-anchor="middle" font-size="17" fill="#111">${spell(rootName(root, type), t.pc, t.deg)}</text>`;
     }
   }
   return o;
@@ -773,12 +826,332 @@ $('strumDown').addEventListener('click', () => playChord());
 $('strumUp').addEventListener('click', () => playChord('up'));
 $('strumSlow').addEventListener('click', () => playChord('slow'));
 
-// ---- Tune / Chords ----
+// ---- Scores ----
+// Public-domain and traditional songs in our own simple arrangements.
+// c d e = octave 4, c' = octave 5; the number is the length in beats (1 if absent); r = rest; [C] = chord; | = bar; / = new line.
+// Lyrics: one token per sung note; a trailing - joins syllables, _ holds the syllable before.
+const SONGS = [
+  { id: 'row', t: 'Row, Row, Row Your Boat', by: 'Traditional', lv: 1, m: 6, bpm: 170,
+    n: "[C]c3 c3 | c2 d1 e3 / | e2 d1 e2 f1 | g6 / | c' c' c' g g g | e e e c c c / | [G7]g2 f1 e2 d1 | [C]c6",
+    w: "Row, row, row your boat, gent- ly down the stream. Mer- ri- ly, mer- ri- ly, mer- ri- ly, mer- ri- ly, life is but a dream." },
+  { id: 'mary', t: 'Mary Had a Little Lamb', by: 'Sarah Hale, 1830', lv: 1, m: 4, bpm: 100,
+    n: "[C]e d c d | e e e2 / | [G7]d d d2 | [C]e g g2 / | e d c d | e e e e / | [G7]d d e d | [C]c4",
+    w: "Ma- ry had a lit- tle lamb, lit- tle lamb, lit- tle lamb, Ma- ry had a lit- tle lamb, its fleece was white as snow." },
+  { id: 'london', t: 'London Bridge', by: 'Traditional', lv: 1, m: 4, bpm: 100,
+    n: "[C]g1.5 a.5 g f | e f g2 / | [G7]d e f2 | [C]e f g2 / | g1.5 a.5 g f | e f g2 / | [G7]d2 g2 | [C]e1 c3",
+    w: "Lon- don Bridge is fall- ing down, fall- ing down, fall- ing down, Lon- don Bridge is fall- ing down, my fair la- dy." },
+  { id: 'frere', t: 'Are You Sleeping (Frère Jacques)', by: 'Traditional', lv: 1, m: 4, bpm: 100,
+    n: "[F]f g a f | f g a f / | a bb c'2 | a bb c'2 / | c'.5 d'.5 c'.5 bb.5 a f | c'.5 d'.5 c'.5 bb.5 a f / | f [C7]c [F]f2 | f [C7]c [F]f2",
+    w: "Are you sleep- ing, are you sleep- ing, Broth- er John, Broth- er John? Morn- ing bells are ring- ing, morn- ing bells are ring- ing, ding, dang, dong, ding, dang, dong." },
+  { id: 'skip', t: 'Skip to My Lou', by: 'Traditional', lv: 1, m: 4, bpm: 88,
+    n: "[F]a f a.5 a.25 a.25 c' / | [C7]g e g.5 g.25 g.25 bb / | [F]a f a.5 a.25 a.25 c' / | [C7]g.5 a.25 bb.25 a.5 g.5 [F]f f",
+    w: "Lou, Lou, skip to my Lou, Lou, Lou, skip to my Lou, Lou, Lou, skip to my Lou, skip to my Lou, my dar- ling." },
+  { id: 'twinkle', t: 'Twinkle, Twinkle, Little Star', by: 'Jane Taylor, 1806', lv: 1, m: 4, bpm: 96,
+    n: "[C]c c g g | [F]a a [C]g2 / | [F]f f [C]e e | [G7]d d [C]c2 / | g g [F]f f | [C]e e [G7]d2 / | [C]g g [F]f f | [C]e e [G7]d2 / | [C]c c g g | [F]a a [C]g2 / | [F]f f [C]e e | [G7]d d [C]c2",
+    w: "Twin- kle, twin- kle, lit- tle star, how I won- der what you are! Up a- bove the world so high, like a dia- mond in the sky. Twin- kle, twin- kle, lit- tle star, how I won- der what you are!" },
+  { id: 'clementine', t: 'Oh My Darling, Clementine', by: 'Percy Montrose, 1884', lv: 1, m: 3, bpm: 100,
+    n: "[F]f.75 f.25 | f c a.75 a.25 | a f f.5 a.5 / | c' c' bb.5 a.5 | [C7]g2 g.5 a.5 / | bb bb a.5 g.5 | [F]a f f.5 a.5 / | [C7]g c e.75 g.25 | [F]f2",
+    w: "Oh my dar- ling, oh my dar- ling, oh my dar- ling Clem- en- tine, you are lost and gone for- ev- er, dread- ful sor- ry, Clem- en- tine." },
+  { id: 'birthday', t: 'Happy Birthday', by: 'Hill sisters, 1890s', lv: 2, m: 3, bpm: 96,
+    n: "[F]c.75 c.25 | d c f | [C7]e2 / c.75 c.25 | d c g | [F]f2 / c.75 c.25 | c' a f | [Bb]e d / bb.75 bb.25 | [F]a f [C7]g | [F]f2",
+    w: "Hap- py birth- day to you, hap- py birth- day to you, hap- py birth- day, my dear friend, hap- py birth- day to you." },
+  { id: 'jingle', t: 'Jingle Bells', by: 'James Pierpont, 1857', lv: 2, m: 4, bpm: 132,
+    n: "[C]e e e2 | e e e2 / | e g c1.5 d.5 | e4 / | [F]f f f1.5 f.5 | [C]f e e e.5 e.5 / | [D7]e d d e | [G7]d2 g2 / | [C]e e e2 | e e e2 / | e g c1.5 d.5 | e4 / | [F]f f f1.5 f.5 | [C]f e e e.5 e.5 / | [G7]g g f d | [C]c4",
+    w: "Jin- gle bells, jin- gle bells, jin- gle all the way! Oh what fun it is to ride in a one- horse o- pen sleigh, hey! Jin- gle bells, jin- gle bells, jin- gle all the way! Oh what fun it is to ride in a one- horse o- pen sleigh!" },
+  { id: 'saints', t: 'When the Saints Go Marching In', by: 'Traditional', lv: 2, m: 4, bpm: 132,
+    n: "[C]c e f | g4 / | r c e f | g4 / | r c e f | g2 e2 | c2 e2 | [G7]d4 / | r e e d | [C]c3 c | [C7]e2 g g | [F]g f3 / | r2 e f | [C]g2 e2 | [G7]c2 d2 | [C]c4",
+    w: "Oh when the saints go march- ing in, oh when the saints go march- ing in, oh Lord, I want to be in that num- ber, when the saints go march- ing in." },
+  { id: 'susanna', t: 'Oh! Susanna', by: 'Stephen Foster, 1848', lv: 2, m: 4, bpm: 132,
+    n: "[C]c.5 d.5 | e g g1.5 a.5 | g e c1.5 d.5 / | e e d c | [G7]d3 / c.5 d.5 | [C]e g g1.5 a.5 | g e c1.5 d.5 / | e e [G7]d d | [C]c4 / | [F]f2 f2 | a a2 a | [C]g g e c | [G7]d3 / c.5 d.5 | [C]e g g1.5 a.5 | g e c1.5 d.5 / | e e [G7]d d | [C]c4",
+    w: "Oh I come from Al- a- bam- a with a ban- jo on my knee, I'm go- in' to Lou- 'si- an- a, my true love for to _ see. Oh! Su- san- na, oh don't you cry for me, for I come from Al- a- bam- a with my ban- jo on my knee." },
+  { id: 'amazing', t: 'Amazing Grace', by: 'John Newton, 1779', lv: 2, m: 3, bpm: 84,
+    n: "[F]c | f2 a.5 f.5 | a2 g | [Bb]f2 d | [F]c2 / c | f2 a.5 f.5 | a2 g | [C7]c'3 / | r2 a | [F]c'2 a.5 f.5 | a2 g | [Bb]f2 d | [F]c2 / c | f2 a.5 f.5 | [C7]a2 g | [F]f3",
+    w: "A- maz- ing _ grace, how sweet the sound, that saved a _ wretch like me. I once was _ lost, but now am found, was blind, but _ now I see." },
+  { id: 'bonnie', t: 'My Bonnie Lies Over the Ocean', by: 'Traditional', lv: 2, m: 3, bpm: 116,
+    n: "[C]g | e' d' c' | [F]d' c' a | [C]g2 e / | r2 g | e' d' c' | c' b c' | [G7]d'3 / | r2 g | [C]e' d' c' | [F]d' c' a | [C]g2 e / | r2 g | [F]a d' c' | [G7]b a b | [C]c'3",
+    w: "My Bon- nie lies o- ver the o- cean, my Bon- nie lies o- ver the sea, my Bon- nie lies o- ver the o- cean, oh bring back my Bon- nie to me." },
+  { id: 'auld', t: 'Auld Lang Syne', by: 'Robert Burns, 1788', lv: 3, m: 4, bpm: 96,
+    n: "[F]c | f1.5 f.5 f a | [C7]g1.5 f.5 g / a | [F]f1.5 f.5 a c' | [Bb]d'3 / d' | [F]c'1.5 a.5 a f | [C7]g1.5 f.5 g / a | [Bb]f1.5 d.5 [C7]d c | [F]f3",
+    w: "Should auld ac- quaint- ance be for- got, and nev- er brought to mind? Should auld ac- quaint- ance be for- got, and days of auld lang syne?" },
+  { id: 'silent', t: 'Silent Night', by: 'Gruber and Mohr, 1818', lv: 3, m: 3, bpm: 84,
+    n: "[C]g1.5 a.5 g | e3 / | g1.5 a.5 g | e3 / | [G7]d'2 d' | b3 / | [C]c'2 c' | g3 / | [F]a2 a | c'1.5 b.5 a / | [C]g1.5 a.5 g | e3 / | [F]a2 a | c'1.5 b.5 a / | [C]g1.5 a.5 g | e3 / | [G7]d'2 d' | f'1.5 d'.5 b | [C]c'3 | e'3 / | c' g e | [G7]g1.5 f.5 d | [C]c3",
+    w: "Si- _ lent night, ho- _ ly night, all is calm, all is bright, round yon vir- _ gin moth- er and child, ho- ly in- fant so ten- der and mild, sleep in heav- en- ly peace, _ sleep in _ heav- en- ly peace." },
+  { id: 'ode', t: 'Ode to Joy', by: 'Beethoven, 1824', lv: 1, m: 4, bpm: 108,
+    n: "[C]e e f g | [G7]g f e d / | [C]c c d e | e1.5 [G7]d.5 d2 / | [C]e e f g | [G7]g f e d / | [C]c c d e | [G7]d1.5 c.5 [C]c2" },
+  { id: 'minuet', t: 'Minuet in G', by: 'Christian Petzold, c. 1725', lv: 3, m: 3, bpm: 104,
+    n: "[G]d' g.5 a.5 b.5 c'.5 | d' g g / | [C]e' c'.5 d'.5 e'.5 f#'.5 | [G]g' g g / | [C]c' d'.5 c'.5 b.5 a.5 | [G]b c'.5 b.5 a.5 g.5 / | [D7]f# g.5 a.5 b.5 g.5 | a3 / | [G]d' g.5 a.5 b.5 c'.5 | d' g g / | [C]e' c'.5 d'.5 e'.5 f#'.5 | [G]g' g g / | [C]c' d'.5 c'.5 b.5 a.5 | [G]b c'.5 b.5 a.5 g.5 / | [D7]a b.5 a.5 g.5 f#.5 | [G]g3" },
+  { id: 'green', t: 'Greensleeves', by: 'Traditional, 1580', lv: 3, m: 6, bpm: 150,
+    n: "[Am]a | c'2 d' e'1.5 f'.5 e' | [G]d'2 b g1.5 a.5 b / | [Am]c'2 a a1.5 g#.5 a | [E7]b2 g# e2 / a | [Am]c'2 d' e'1.5 f'.5 e' | [G]d'2 b g1.5 a.5 b / | [Am]c'1.5 b.5 a [E7]g#1.5 f#.5 g# | [Am]a6 / | [C]g'3 g'1.5 f'.5 e' | [G]d'2 b g1.5 a.5 b / | [Am]c'2 a a1.5 g#.5 a | [E7]b2 g# e3 / | [C]g'3 g'1.5 f'.5 e' | [G]d'2 b g1.5 a.5 b / | [Am]c'1.5 b.5 a [E7]g#1.5 f#.5 g# | [Am]a6" },
+];
+const PC = { c: 0, d: 2, e: 4, f: 5, g: 7, a: 9, b: 11 };
+const LEVELS = ['', 'Easiest', 'Easy', 'Next step'];
+function parseSong(s) {
+  if (s.ev) return s;
+  const ev = [], chords = [], bars = [], words = s.w ? s.w.split(' ') : null;
+  let line = 0, wi = 0, at = 0;
+  s.n.split('|').forEach((bar, bi) => {
+    const toks = bar.trim().split(/\s+/);
+    const len = toks.reduce((a, t) => { const x = /^(?:\[\w+\])?[a-gr][#b]?'?([\d.]*)$/.exec(t); return x ? a + Number(x[1] || 1) : a; }, 0);
+    if (bi === 0) at = len < s.m ? s.m - len : 0;
+    if (bi === 0) s.start = at;
+    bars.push(at);
+    toks.forEach(t => {
+      if (t === '/') { line++; return; }
+      const x = /^(?:\[(\w+)\])?([a-gr])([#b]?)('?)([\d.]*)$/.exec(t);
+      if (!x) throw new Error(s.id + ' ' + t);
+      if (x[1]) chords.push({ b: at, name: x[1] });
+      const d = Number(x[5] || 1), m = x[2] === 'r' ? null : 60 + PC[x[2]] + (x[3] === '#' ? 1 : x[3] === 'b' ? -1 : 0) + (x[4] ? 12 : 0);
+      ev.push({ b: at, d, m, line, bar: bi, w: m !== null && words ? words[wi++] : '', chord: x[1] || '' });
+      at += d;
+    });
+  });
+  Object.assign(s, { ev, chords, bars, end: at, used: [...new Set(chords.map(c => c.name))], extraWords: words ? words.length - wi : 0 });
+  return s;
+}
+function songChord(name) {
+  const x = /^([A-G]b?)(.*)$/.exec(name), root = ROOTS.findIndex(r => r[0] === x[1].replace('b', '♭'));
+  return { root, type: { '': 'maj', m: 'min', 7: '7' }[x[2]], label: x[1].replace('b', '♭') + x[2] };
+}
+const chordNotes = name => { const c = songChord(name), o = chordOpen(); return voicings(c.root, c.type)[0].shape.map((x, i) => o[i] + x); };
+// Melodies sit on the C, E and A strings, so the same tab works for High G and Low G
+const tabPos = m => m >= 69 ? [0, m - 69] : m >= 64 ? [1, m - 64] : [2, m - 60];
+const STRUM = { 3: '↓ ↓ ↓', 4: '↓ ↓ ↓ ↓', 6: '↓ · · ↓ · ·' };
+const isDown = (s, beat) => s.m === 6 ? beat % 3 === 0 : true;
+
+let song = null, songView = 'sing', speed = 1, parts = { voice: true, strum: true, pick: false };
+function renderSongList() {
+  const box = $('songList'); box.innerHTML = '';
+  [['Sing along', SONGS.filter(s => s.w)], ['Tabs to play', SONGS.filter(s => !s.w)]].forEach(([title, list]) => {
+    const h = document.createElement('h2'); h.textContent = title; box.append(h);
+    [...list].sort((a, b) => a.lv - b.lv).forEach(s => {
+      parseSong(s);
+      const b = document.createElement('button'), l = document.createElement('span'), r = document.createElement('span'), sm = document.createElement('small');
+      b.type = 'button'; b.className = 'songrow';
+      l.textContent = s.t; sm.textContent = s.by; l.append(sm);
+      r.textContent = s.used.map(c => songChord(c).label).join(' ');
+      const lv = document.createElement('small'); lv.textContent = LEVELS[s.lv]; r.append(lv);
+      b.append(l, r);
+      b.addEventListener('click', () => openSong(s));
+      box.append(b);
+    });
+  });
+}
+function openSong(s) {
+  stopSong(); song = parseSong(s); songView = s.w ? 'sing' : 'tab';
+  parts = s.w ? { voice: true, strum: true, pick: false } : { voice: false, strum: false, pick: true };
+  $('songList').hidden = true; $('songPage').hidden = false;
+  renderSong(); $('scores').scrollTop = 0;
+}
+function closeSong() { stopSong(); song = null; $('songPage').hidden = true; $('songList').hidden = false; }
+function chordButton(name, cls) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = cls;
+  b.textContent = songChord(name).label; b.setAttribute('aria-label', `Show how to play ${songChord(name).label}`);
+  b.addEventListener('click', e => { e.stopPropagation(); showSongChord(name); });
+  return b;
+}
+function renderSong() {
+  setText('songTitle', song.t); setText('songBy', `${song.by} · ${LEVELS[song.lv]}`);
+  $('viewSing').hidden = !song.w;
+  $('partVoice').hidden = !song.w;
+  $('viewSing').classList.toggle('on', songView === 'sing'); $('viewTab').classList.toggle('on', songView === 'tab');
+  $('viewSing').setAttribute('aria-pressed', songView === 'sing'); $('viewTab').setAttribute('aria-pressed', songView === 'tab');
+  setText('strumText', `Strum each bar: ${STRUM[song.m]}`);
+  const strip = $('songChords'); strip.innerHTML = '';
+  song.used.forEach(n => {
+    const c = songChord(n), v = voicings(c.root, c.type)[0], b = document.createElement('button');
+    b.type = 'button'; b.dataset.chord = n; b.setAttribute('aria-label', `Show how to play ${c.label}`);
+    b.innerHTML = `<b>${c.label}</b><svg viewBox="0 0 220 200" aria-hidden="true">${fretSvg(v, v.fs[0], false)}</svg>`;
+    b.addEventListener('click', () => showSongChord(n));
+    strip.append(b);
+  });
+  const body = $('songBody'); body.innerHTML = '';
+  songView === 'sing' ? renderSing(body) : renderTab(body);
+  renderParts();
+}
+function renderSing(body) {
+  let lineEl = null, last = -1, fresh = false;
+  song.ev.forEach((e, i) => {
+    if (e.line !== last) { lineEl = document.createElement('div'); lineEl.className = 'lyric'; body.append(lineEl); last = e.line; fresh = true; }
+    if (e.m === null && !e.chord) return;
+    const cell = document.createElement('span'); cell.className = 'syl'; cell.dataset.n = i;
+    const ch = e.chord || (fresh ? song.chords.filter(x => x.b <= e.b + 0.001).pop().name : ""); fresh = false;
+    if (ch) cell.append(chordButton(ch, 'chordtag')); else { const x = document.createElement('i'); cell.append(x); }
+    const w = document.createElement('span');
+    w.textContent = e.w === '_' || !e.w ? '–' : e.w;
+    if (e.w && e.w.endsWith('-')) cell.classList.add('join');
+    cell.append(w);
+    cell.addEventListener('click', () => playSong(song.bars[e.bar] < song.start ? song.start : song.bars[e.bar]));
+    lineEl.append(cell);
+  });
+}
+function renderTab(body) {
+  const groups = [];
+  song.ev.forEach((e, i) => { const g = e.bar >> 1; (groups[g] = groups[g] || []).push([e, i]); });
+  groups.forEach(list => {
+    const step = 30, W = Math.max(330, 44 + list.length * step + 12), gap = (W - 56) / list.length;
+    let o = '', prev = list[0][0].bar;
+    ['A', 'E', 'C', 'G'].forEach((n, k) => { o += `<text x="4" y="${35 + k * 18}" font-size="13" fill="#65625A">${n}</text><path d="M20 ${30 + k * 18}H${W - 4}" stroke="#8C887C"/>`; });
+    o += `<path d="M20 30V84M${W - 4} 30V84" stroke="#111" stroke-width="1.5"/>`;
+    list.forEach(([e, i], k) => {
+      const x = 40 + k * gap;
+      if (e.bar !== prev) { o += `<path d="M${x - gap / 2} 30V84" stroke="#111" stroke-width="1.5"/>`; prev = e.bar; }
+      if (e.chord) o += `<g class="tabchord" role="button" tabindex="0" data-chord="${e.chord}" aria-label="Show how to play ${songChord(e.chord).label}"><rect x="${x - 16}" y="0" width="34" height="22" fill="transparent"/><text x="${x}" y="16" text-anchor="middle" font-size="15" fill="#D9141E">${songChord(e.chord).label}</text></g>`;
+      if (e.m === null) { o += `<text x="${x}" y="62" text-anchor="middle" font-size="15" fill="#65625A">–</text>`; return; }
+      const [st, fr] = tabPos(e.m), y = 30 + st * 18;
+      o += `<g data-n="${i}" class="tabnote"><circle cx="${x}" cy="${y}" r="10" fill="#F1EEE4"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" fill="#111">${fr}</text>`;
+      if (e.w) o += `<text x="${x}" y="104" text-anchor="middle" font-size="11" fill="#65625A" class="tabword">${e.w.replace(/[_,.!?]/g, '')}</text>`;
+      o += '</g>';
+    });
+    const d = document.createElement('div'); d.className = 'tabline';
+    d.innerHTML = `<svg viewBox="0 0 ${W} ${song.w ? 110 : 92}" role="group" aria-label="Tab">${o}</svg>`;
+    d.querySelectorAll('.tabchord').forEach(g => {
+      g.addEventListener('click', () => showSongChord(g.dataset.chord));
+      g.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); showSongChord(g.dataset.chord); } });
+    });
+    body.append(d);
+  });
+}
+function renderParts() {
+  [['partVoice', 'voice'], ['partStrum', 'strum'], ['partPick', 'pick']].forEach(([id, k]) => { $(id).classList.toggle('on', parts[k]); $(id).setAttribute('aria-pressed', parts[k]); });
+  document.querySelectorAll('#speeds button').forEach(b => { const on = Number(b.dataset.speed) === speed; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  setText('playSong', run ? 'Stop' : 'Play');
+  if (run) Object.keys(parts).forEach(k => run.bus[k].gain.setTargetAtTime(parts[k] ? 1 : 0, ctx.currentTime, 0.02));
+}
+
+// Player
+let run = null, playToken = 0;
+function stopSong() {
+  playToken++;
+  if (run) { clearInterval(run.timer); run.master.disconnect(); run = null; }
+  document.querySelectorAll('#songPage .now').forEach(x => x.classList.remove('now'));
+  if (song) { renderParts(); setText('songStatus', ''); }
+}
+function playSong(from) {
+  stopSong(); strumId++; stopPlucks(); session('playback');
+  const token = playToken, c = audio();
+  const begin = () => {
+    if (token !== playToken || !song) return;
+    const master = c.createDynamicsCompressor(), bus = {};
+    master.connect(c.destination);
+    ['voice', 'strum', 'pick', 'click'].forEach(k => { bus[k] = c.createGain(); bus[k].gain.value = k === 'click' || parts[k] ? 1 : 0; bus[k].connect(master); });
+    const spb = 60 / (song.bpm * speed), step = song.m === 6 ? 3 : 1, count = song.m;
+    const t0 = c.currentTime + 0.15;
+    for (let b = 0; b < count; b += step) click(c, bus.click, t0 + b * spb, b === 0);
+    const sch = [];
+    song.ev.forEach((e, i) => { if (e.m !== null && e.b >= from - 0.001) sch.push({ b: e.b, e, i }); });
+    for (let b = Math.ceil(from); b < song.end - 0.001; b++) {
+      const inBar = ((b % song.m) + song.m) % song.m;
+      const ch = song.chords.filter(x => x.b <= b + 0.001).pop();
+      if (ch && isDown(song, inBar)) sch.push({ b, strum: ch.name, strong: inBar === 0 });
+    }
+    sch.sort((p, q) => p.b - q.b);
+    run = { master, bus, sch, next: 0, t0: t0 + count * spb, from, spb, last: null };
+    run.timer = setInterval(tick, 40);
+    setText('songStatus', 'Get ready'); renderParts(); tick();
+  };
+  if (c.state === 'running') begin(); else c.resume().then(begin).catch(() => {});
+}
+function tick() {
+  if (!run) return;
+  const c = ctx, r = run, at = b => r.t0 + (b - r.from) * r.spb;
+  while (r.next < r.sch.length && at(r.sch[r.next].b) < c.currentTime + 0.4) {
+    const x = r.sch[r.next++], t = Math.max(at(x.b), c.currentTime + 0.01);
+    if (x.strum) chordNotes(x.strum).forEach((m, i) => hit(c, r.bus.strum, m, t + i * 0.025, x.strong ? 0.15 : 0.1));
+    else { sing(c, r.bus.voice, x.e.m, t, x.e.d * r.spb); hit(c, r.bus.pick, x.e.m, t, 0.45); }
+  }
+  const now = r.from + (c.currentTime - r.t0) / r.spb;
+  if (now < r.from - 0.02) return;
+  if (now > song.end + 0.5) { stopSong(); return; }
+  let cur = null;
+  song.ev.forEach((e, i) => { if (e.m !== null && e.b <= now + 0.02 && e.b >= r.from - 0.001) cur = i; });
+  const ch = song.chords.filter(x => x.b <= now + 0.02).pop();
+  if (cur !== r.last) {
+    r.last = cur;
+    document.querySelectorAll('#songBody .now').forEach(x => x.classList.remove('now'));
+    const el = document.querySelector(`#songBody [data-n="${cur}"]`);
+    if (el) {
+      el.classList.add('now');
+      const line = el.closest('.lyric, .tabline');
+      if (line !== r.line) {
+        r.line = line;
+        const box = $('songBody').getBoundingClientRect(), p = $('scores').getBoundingClientRect(), q = line.getBoundingClientRect(), bar = $('player').getBoundingClientRect();
+        if (q.bottom > p.bottom - 8 || q.top < bar.bottom + 4) $('scores').scrollTop += q.top - bar.bottom - 8;
+      }
+    }
+  }
+  if (ch && ch.name !== r.chord) {
+    r.chord = ch.name;
+    document.querySelectorAll('#songChords button').forEach(b => b.classList.toggle('now', b.dataset.chord === ch.name));
+    setText('songStatus', `Now: ${songChord(ch.name).label}`);
+  }
+}
+function click(c, out, t, strong) {
+  const o = c.createOscillator(), g = c.createGain();
+  o.frequency.value = strong ? 1500 : 1000;
+  g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  o.connect(g).connect(out); o.start(t); o.stop(t + 0.07);
+}
+function hit(c, out, m, t, vol) {
+  const s = c.createBufferSource(), g = c.createGain();
+  s.buffer = pluckBuffer(m); g.gain.value = vol;
+  s.connect(g).connect(out); s.start(t);
+}
+// A voice-like "ah": a buzz shaped by the resonances of a mouth, with gentle vibrato. It does not pronounce words.
+function sing(c, out, m, t, dur) {
+  const f = noteFreq(m), end = t + Math.max(0.1, dur * 0.94), env = c.createGain(), o = c.createOscillator(), v = c.createOscillator(), vg = c.createGain();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t);
+  v.frequency.value = 5.2; vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(dur > 0.4 ? f * 0.006 : 0, t + Math.min(0.5, dur * 0.7));
+  v.connect(vg).connect(o.frequency);
+  env.gain.setValueAtTime(0.0001, t); env.gain.linearRampToValueAtTime(0.4, t + 0.05);
+  env.gain.setValueAtTime(0.4, Math.max(t + 0.05, end - 0.05)); env.gain.linearRampToValueAtTime(0.0001, end);
+  const low = c.createBiquadFilter(), lg = c.createGain(); low.type = 'lowpass'; low.frequency.value = f * 1.5; lg.gain.value = 0.5;
+  o.connect(low).connect(lg).connect(env);
+  [[800, 6, 0.9], [1200, 8, 0.5], [2800, 10, 0.18]].forEach(([fr, q, g]) => {
+    const b = c.createBiquadFilter(), bg = c.createGain(); b.type = 'bandpass'; b.frequency.value = fr; b.Q.value = q; bg.gain.value = g;
+    o.connect(b).connect(bg).connect(env);
+  });
+  env.connect(out); o.start(t); v.start(t); o.stop(end + 0.02); v.stop(end + 0.02);
+}
+
+// Chord sheet
+let sheet = null;
+function showSongChord(name) {
+  if (run) stopSong();
+  const c = songChord(name), v = voicings(c.root, c.type)[0];
+  sheet = { ...c, name };
+  setText('sheetName', c.label);
+  $('sheetBoard').innerHTML = fretSvg(v, v.fs[0], true, c.root, c.type);
+  $('sheetBoard').setAttribute('aria-label', spoken(v, v.fs[0]));
+  setText('sheetNote', `${song ? `Strum each bar: ${STRUM[song.m]}. ` : ''}1 index, 2 middle, 3 ring, 4 little. ○ open string.`);
+  if (!$('chordSheet').open) $('chordSheet').showModal();
+  session('playback'); strum(chordNotes(name), 0.04);
+}
+$('sheetStrum').addEventListener('click', () => strum(chordNotes(sheet.name), 0.04));
+$('sheetSlow').addEventListener('click', () => strum(chordNotes(sheet.name), 0.45));
+$('sheetAll').addEventListener('click', () => { $('chordSheet').close(); setView('chords'); pickChord(sheet.root, sheet.type); });
+$('sheetClose').addEventListener('click', () => $('chordSheet').close());
+$('songBack').addEventListener('click', closeSong);
+$('viewSing').addEventListener('click', () => { stopSong(); songView = 'sing'; renderSong(); });
+$('viewTab').addEventListener('click', () => { stopSong(); songView = 'tab'; renderSong(); });
+$('playSong').addEventListener('click', () => run ? stopSong() : playSong(song.start));
+[['partVoice', 'voice'], ['partStrum', 'strum'], ['partPick', 'pick']].forEach(([id, k]) => $(id).addEventListener('click', () => { parts[k] = !parts[k]; renderParts(); }));
+document.querySelectorAll('#speeds button').forEach(b => b.addEventListener('click', () => {
+  const at = run ? Math.max(run.from, Math.floor((run.from + (ctx.currentTime - run.t0) / run.spb) / song.m) * song.m) : null;
+  speed = Number(b.dataset.speed); renderParts();
+  if (at !== null) playSong(Math.max(song.start, at));
+}));
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopSong(); });
+renderSongList();
+
+// ---- Tune / Chords / Scores ----
 function setView(v) {
-  if (v === 'chords') { if (selected !== null || stream) stopListening(); renderChord(); }
+  if (v !== 'tune' && (selected !== null || stream)) stopListening();
+  if (v === 'chords') renderChord();
+  stopSong();
+  if (v === 'scores' && song) renderSong();
   strumId++; stopPlucks();
-  $('app').hidden = v !== 'tune'; $('chords').hidden = v !== 'chords';
-  [['navTune', 'tune'], ['navChords', 'chords']].forEach(([id, k]) => {
+  $('app').hidden = v !== 'tune'; $('chords').hidden = v !== 'chords'; $('scores').hidden = v !== 'scores';
+  [['navTune', 'tune'], ['navChords', 'chords'], ['navScores', 'scores']].forEach(([id, k]) => {
     $(id).classList.toggle('on', k === v);
     if (k === v) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
   });
@@ -786,10 +1159,11 @@ function setView(v) {
 }
 $('navTune').addEventListener('click', () => setView('tune'));
 $('navChords').addEventListener('click', () => setView('chords'));
+$('navScores').addEventListener('click', () => { if ($('scores').hidden) setView('scores'); else if (song) closeSong(); });
 
 $('ticks').setAttribute('d', Array.from({ length: 11 }, (_, i) => i === 5 ? '' : `M${5 + i * 26} 12v14`).join(''));
 buildHead(); renderSettings(); rest(); draw();
-setView(load('view') === 'chords' ? 'chords' : 'tune');
+setView(['chords', 'scores'].includes(load('view')) ? load('view') : 'tune');
 </script>
 </body>
 </html>
