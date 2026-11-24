@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Low G Tuner">
+<meta name="theme-color" content="#16110e">
+<title>Low G Tuner</title>
+<style>
+/* One-screen instrument: big reading on top, needle gauge in the middle, four string buttons at the thumb. */
+:root {
+  --bg: #16110e;        /* dark koa */
+  --panel: #231b16;
+  --line: #3a2e26;
+  --fg: #f4ebe0;
+  --muted: #a8988a;
+  --good: #63d69a;      /* in tune */
+  --off: #f2a541;       /* flat / sharp */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  -webkit-user-select: none; user-select: none;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.app {
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex; flex-direction: column;
+  gap: 16px;
+  padding-block: 16px;
+}
+header { display: flex; justify-content: space-between; align-items: baseline; }
+header h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: .01em; }
+header .tuning { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+
+.reading {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; min-height: 0;
+}
+.note {
+  font-size: clamp(96px, 32vw, 150px);
+  font-weight: 700; line-height: 1;
+  transition: color .15s;
+}
+.note sub { font-size: .28em; font-weight: 500; color: var(--muted); vertical-align: baseline; margin-left: 2px; }
+.hz { font-family: var(--mono); font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+
+.gauge { width: 100%; max-width: 100%; }
+.gauge svg { display: block; width: 100%; height: auto; }
+.status {
+  text-align: center; font-size: 22px; font-weight: 600; min-height: 1.4em;
+  transition: color .15s;
+}
+.state-good .note, .state-good .status { color: var(--good); }
+.state-off .note, .state-off .status { color: var(--off); }
+.state-idle .note { color: var(--fg); opacity: .35; }
+.state-idle .status { color: var(--muted); font-weight: 500; font-size: 17px; }
+
+.strings { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.str {
+  appearance: none; border: 1.5px solid var(--line); background: var(--panel); color: var(--fg);
+  border-radius: 16px; padding: 14px 0 10px; font: inherit; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: border-color .15s, background .15s;
+}
+.str b { font-size: 28px; line-height: 1; }
+.str small { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.str.active { border-color: var(--fg); }
+.str.locked { border-color: var(--off); background: #2e2219; }
+.str.done b { color: var(--good); }
+.str:focus-visible, .btn:focus-visible { outline: 2px solid var(--good); outline-offset: 2px; }
+
+.row { display: flex; gap: 10px; }
+.btn {
+  flex: 1; appearance: none; border: 0; border-radius: 16px; padding: 16px; font: inherit;
+  font-size: 17px; font-weight: 600; cursor: pointer;
+  background: var(--fg); color: var(--bg);
+}
+.btn.secondary { background: var(--panel); color: var(--fg); border: 1.5px solid var(--line); }
+.hint { text-align: center; font-size: 13px; color: var(--muted); margin: 0; min-height: 1.2em; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="app state-idle" id="app">
+  <header>
+    <h1>Low G Tuner</h1>
+    <span class="tuning">G3 · C4 · E4 · A4</span>
+  </header>
+
+  <section class="reading" aria-live="polite">
+    <div class="note" id="note">G<sub>3</sub></div>
+    <div class="hz" id="hz">&nbsp;</div>
+  </section>
+
+  <div class="gauge">
+    <svg viewBox="0 0 320 120" aria-hidden="true">
+      <g id="ticks"></g>
+      <text x="22" y="114" font-size="12" fill="#a8988a" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">−50</text>
+      <text x="298" y="114" font-size="12" fill="#a8988a" text-anchor="middle" font-family="ui-monospace, Menlo, monospace">+50</text>
+      <line id="needle" x1="160" y1="100" x2="160" y2="16" stroke="#f4ebe0" stroke-width="4" stroke-linecap="round" style="transform-origin:160px 100px; transition: transform .12s linear"/>
+      <circle cx="160" cy="100" r="7" fill="#f4ebe0"/>
+    </svg>
+  </div>
+  <div class="status" id="status">Tap Start, then pluck a string</div>
+
+  <div class="strings" id="strings" role="group" aria-label="Strings"></div>
+  <p class="hint" id="hint">Tap a string to hear it and tune only that one</p>
+
+  <div class="row">
+    <button class="btn" id="start" type="button">Start</button>
+  </div>
+</main>
+
+<script>
+// Low-G (linear) tuning, standard A = 440 Hz. G is the 4th string, an octave below re-entrant tuning.
+const STRINGS = [
+  { name: 'G', oct: 3, freq: 196.00 },
+  { name: 'C', oct: 4, freq: 261.63 },
+  { name: 'E', oct: 4, freq: 329.63 },
+  { name: 'A', oct: 4, freq: 440.00 },
+];
+const IN_TUNE_CENTS = 5;
+
+const $ = id => document.getElementById(id);
+const app = $('app'), noteEl = $('note'), hzEl = $('hz'), statusEl = $('status'),
+      needle = $('needle'), startBtn = $('start'), hintEl = $('hint');
+
+// Gauge ticks
+(() => {
+  const g = $('ticks'), ns = 'http://www.w3.org/2000/svg';
+  for (let c = -50; c <= 50; c += 10) {
+    const a = (c / 50) * 60 * Math.PI / 180;
+    const r1 = c === 0 ? 70 : 76, r2 = 88;
+    const l = document.createElementNS(ns, 'line');
+    l.setAttribute('x1', 160 + r1 * Math.sin(a)); l.setAttribute('y1', 100 - r1 * Math.cos(a));
+    l.setAttribute('x2', 160 + r2 * Math.sin(a)); l.setAttribute('y2', 100 - r2 * Math.cos(a));
+    l.setAttribute('stroke', c === 0 ? '#63d69a' : '#5a4a3e');
+    l.setAttribute('stroke-width', c === 0 ? 4 : 2);
+    l.setAttribute('stroke-linecap', 'round');
+    g.appendChild(l);
+  }
+})();
+
+// String buttons
+let locked = null;           // index of string chosen by the player, or null for auto
+const tunedOk = new Set();
+const strWrap = $('strings');
+STRINGS.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'str'; b.id = 'str' + i;
+  b.innerHTML = `<b>${s.name}</b><small>${s.name}${s.oct}</small>`;
+  b.setAttribute('aria-label', `${s.name}${s.oct}, ${s.freq} hertz`);
+  b.addEventListener('click', () => {
+    locked = (locked === i) ? null : i;
+    if (locked !== null) playTone(s.freq);
+    renderStrings(lastIndex);
+    hintEl.textContent = locked === null
+      ? 'Auto mode: pluck any string'
+      : `Tuning ${s.name} only. Tap it again for auto mode`;
+    if (!running) showTarget(i);
+  });
+  strWrap.appendChild(b);
+});
+
+function renderStrings(activeIdx) {
+  STRINGS.forEach((_, i) => {
+    const b = $('str' + i);
+    b.classList.toggle('locked', locked === i);
+    b.classList.toggle('active', locked === null && activeIdx === i);
+    b.classList.toggle('done', tunedOk.has(i));
+  });
+}
+function showTarget(i) {
+  const s = STRINGS[i];
+  noteEl.innerHTML = `${s.name}<sub>${s.oct}</sub>`;
+  hzEl.textContent = `target ${s.freq.toFixed(2)} Hz`;
+}
+
+// ---- Pitch detection (YIN) ----
+function detectPitch(buf, sr) {
+  const minF = 80, maxF = 1000;
+  const maxTau = Math.min(Math.floor(sr / minF), Math.floor(buf.length / 2));
+  const minTau = Math.floor(sr / maxF);
+  const W = buf.length - maxTau;
+  let rms = 0;
+  for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / buf.length);
+  if (rms < 0.008) return { freq: -1, rms };
+
+  const d = new Float32Array(maxTau + 1);
+  for (let tau = 1; tau <= maxTau; tau++) {
+    let sum = 0;
+    for (let i = 0; i < W; i++) { const x = buf[i] - buf[i + tau]; sum += x * x; }
+    d[tau] = sum;
+  }
+  // cumulative mean normalized difference
+  const cm = new Float32Array(maxTau + 1); cm[0] = 1;
+  let run = 0;
+  for (let tau = 1; tau <= maxTau; tau++) { run += d[tau]; cm[tau] = run ? d[tau] * tau / run : 1; }
+
+  const TH = 0.15;
+  let tau = -1;
+  for (let t = minTau; t < maxTau; t++) {
+    if (cm[t] < TH) { while (t + 1 < maxTau && cm[t + 1] < cm[t]) t++; tau = t; break; }
+  }
+  if (tau < 0) return { freq: -1, rms };
+  // parabolic interpolation
+  const x0 = cm[tau - 1], x1 = cm[tau], x2 = cm[tau + 1] ?? x1;
+  const den = x0 + x2 - 2 * x1;
+  const better = den ? tau + (x0 - x2) / (2 * den) : tau;
+  return { freq: sr / better, rms, clarity: 1 - x1 };
+}
+window.detectPitch = detectPitch; // exposed for testing
+
+const cents = (f, ref) => 1200 * Math.log2(f / ref);
+function nearestString(f) {
+  let best = 0, bestAbs = Infinity;
+  STRINGS.forEach((s, i) => { const c = Math.abs(cents(f, s.freq)); if (c < bestAbs) { bestAbs = c; best = i; } });
+  return best;
+}
+
+// ---- Audio ----
+let ctx = null, analyser = null, stream = null, running = false, rafId = 0, wakeLock = null;
+let history = [], lastIndex = null, lastHeard = 0, inTuneSince = 0;
+
+async function start() {
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    await ctx.resume();
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+    const src = ctx.createMediaStreamSource(stream);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 4096;
+    src.connect(analyser);
+    running = true;
+    startBtn.textContent = 'Stop';
+    startBtn.classList.add('secondary');
+    setIdle('Pluck a string');
+    try { wakeLock = await navigator.wakeLock?.request('screen'); } catch (_) {}
+    loop();
+  } catch (err) {
+    const insecure = !window.isSecureContext;
+    setIdle(insecure ? 'Open this page over https to use the mic'
+                     : 'Allow microphone access to tune');
+    hintEl.textContent = insecure ? '' : 'Settings › Safari › Microphone, then try again';
+  }
+}
+function stop() {
+  running = false;
+  cancelAnimationFrame(rafId);
+  stream?.getTracks().forEach(t => t.stop());
+  stream = null;
+  try { wakeLock?.release(); } catch (_) {}
+  startBtn.textContent = 'Start';
+  startBtn.classList.remove('secondary');
+  setIdle('Tap Start, then pluck a string');
+  setNeedle(0);
+}
+startBtn.addEventListener('click', () => running ? stop() : start());
+document.addEventListener('visibilitychange', () => { if (document.hidden && running) stop(); });
+
+const buf = new Float32Array(4096);
+let frame = 0;
+function loop() {
+  if (!running) return;
+  rafId = requestAnimationFrame(loop);
+  if (frame++ % 2) return; // ~30 readings per second is plenty
+  analyser.getFloatTimeDomainData(buf);
+  const { freq } = detectPitch(buf, ctx.sampleRate);
+  const now = performance.now();
+  if (freq > 0) {
+    history.push(freq); if (history.length > 5) history.shift();
+    const f = [...history].sort((a, b) => a - b)[history.length >> 1];
+    lastHeard = now;
+    update(f, now);
+  } else if (now - lastHeard > 900) {
+    history = [];
+    setIdle('Pluck a string');
+  }
+}
+
+function update(f, now) {
+  const idx = locked ?? nearestString(f);
+  const s = STRINGS[idx];
+  let c = cents(f, s.freq);
+  lastIndex = idx;
+  renderStrings(idx);
+  noteEl.innerHTML = `${s.name}<sub>${s.oct}</sub>`;
+  hzEl.textContent = `${f.toFixed(1)} Hz  ·  ${c >= 0 ? '+' : '−'}${Math.abs(c).toFixed(0)} cents`;
+  setNeedle(c);
+
+  app.classList.remove('state-idle', 'state-good', 'state-off');
+  if (Math.abs(c) > 300) {
+    app.classList.add('state-off');
+    statusEl.textContent = c < 0 ? 'Way too low ↑' : 'Way too high ↓';
+    inTuneSince = 0;
+  } else if (Math.abs(c) <= IN_TUNE_CENTS) {
+    app.classList.add('state-good');
+    statusEl.textContent = 'In tune ✓';
+    if (!inTuneSince) inTuneSince = now;
+    if (now - inTuneSince > 600) { tunedOk.add(idx); renderStrings(idx); }
+  } else {
+    app.classList.add('state-off');
+    statusEl.textContent = c < 0 ? 'Too low · tighten ↑' : 'Too high · loosen ↓';
+    inTuneSince = 0;
+  }
+}
+function setNeedle(c) {
+  const clamped = Math.max(-50, Math.min(50, c));
+  needle.style.transform = `rotate(${clamped / 50 * 60}deg)`;
+  needle.setAttribute('stroke', Math.abs(c) <= IN_TUNE_CENTS && c !== 0 ? '#63d69a' : '#f4ebe0');
+}
+function setIdle(msg) {
+  app.classList.remove('state-good', 'state-off');
+  app.classList.add('state-idle');
+  statusEl.textContent = msg;
+  hzEl.innerHTML = '&nbsp;';
+  setNeedle(0);
+  inTuneSince = 0;
+}
+
+// Reference tone: a short plucked-sounding note
+function playTone(freq) {
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  ctx.resume();
+  const t = ctx.currentTime;
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(0.5, t + 0.01);
+  out.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.setValueAtTime(freq * 6, t);
+  lp.frequency.exponentialRampToValueAtTime(freq * 1.5, t + 1.5);
+  [[1, 'triangle', 1], [2, 'sine', 0.25]].forEach(([mult, type, g]) => {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = type; o.frequency.value = freq * mult; og.gain.value = g;
+    o.connect(og).connect(lp);
+    o.start(t); o.stop(t + 2.3);
+  });
+  lp.connect(out).connect(ctx.destination);
+}
+
+renderStrings(null);
+showTarget(0);
+</script>
+</body>
+</html>
