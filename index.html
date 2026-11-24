@@ -6,9 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Low G Tuner">
+<meta name="apple-mobile-web-app-title" content="Uke Tuner">
 <meta name="theme-color" content="#16110e">
-<title>Low G Tuner</title>
+<title>Uke Tuner</title>
 <style>
 /* One-screen instrument: big reading on top, needle gauge in the middle, four string buttons at the thumb. */
 :root {
@@ -46,6 +46,11 @@ body {
 header { display: flex; justify-content: space-between; align-items: baseline; }
 header h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: .01em; }
 header .tuning { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 16px; background: var(--panel); border: 1.5px solid var(--line); }
+.mode { appearance: none; border: 0; border-radius: 12px; min-height: 44px; font: inherit; font-size: 16px; font-weight: 600; background: transparent; color: var(--muted); cursor: pointer; }
+.mode[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.mode:focus-visible { outline: 2px solid var(--good); outline-offset: 2px; }
 
 .reading {
   flex: 1;
@@ -99,9 +104,14 @@ header .tuning { font-family: var(--mono); font-size: 13px; color: var(--muted);
 <body>
 <main class="app state-idle" id="app">
   <header>
-    <h1>Low G Tuner</h1>
-    <span class="tuning">G3 · C4 · E4 · A4</span>
+    <h1>Uke Tuner</h1>
+    <span class="tuning" id="tuning">G3 · C4 · E4 · A4</span>
   </header>
+
+  <div class="modes" role="group" aria-label="G string tuning">
+    <button class="mode" id="modeLow" type="button">Low G</button>
+    <button class="mode" id="modeHigh" type="button">Normal G</button>
+  </div>
 
   <section class="reading" aria-live="polite">
     <div class="note" id="note">G<sub>3</sub></div>
@@ -128,9 +138,13 @@ header .tuning { font-family: var(--mono); font-size: 13px; color: var(--muted);
 </main>
 
 <script>
-// Low-G (linear) tuning, standard A = 440 Hz. G is the 4th string, an octave below re-entrant tuning.
+// A = 440 Hz. The G string is either low (G3, linear) or normal (G4, re-entrant, an octave higher).
+const G_STRINGS = {
+  low:  { name: 'G', oct: 3, freq: 196.00 },
+  high: { name: 'G', oct: 4, freq: 392.00 },
+};
 const STRINGS = [
-  { name: 'G', oct: 3, freq: 196.00 },
+  G_STRINGS.low,
   { name: 'C', oct: 4, freq: 261.63 },
   { name: 'E', oct: 4, freq: 329.63 },
   { name: 'A', oct: 4, freq: 440.00 },
@@ -161,12 +175,16 @@ const app = $('app'), noteEl = $('note'), hzEl = $('hz'), statusEl = $('status')
 let locked = null;           // index of string chosen by the player, or null for auto
 const tunedOk = new Set();
 const strWrap = $('strings');
-STRINGS.forEach((s, i) => {
-  const b = document.createElement('button');
-  b.type = 'button'; b.className = 'str'; b.id = 'str' + i;
+function labelString(b, s) {
   b.innerHTML = `<b>${s.name}</b><small>${s.name}${s.oct}</small>`;
   b.setAttribute('aria-label', `${s.name}${s.oct}, ${s.freq} hertz`);
+}
+STRINGS.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'str'; b.id = 'str' + i;
+  labelString(b, STRINGS[i]);
   b.addEventListener('click', () => {
+    const s = STRINGS[i]; // looked up on tap: the G string can change
     locked = (locked === i) ? null : i;
     if (locked !== null) playTone(s.freq);
     renderStrings(lastIndex);
@@ -358,8 +376,25 @@ function playTone(freq) {
   lp.connect(out).connect(ctx.destination);
 }
 
-renderStrings(null);
-showTarget(0);
+// Low G / Normal G switch, remembered on this phone
+function setMode(mode) {
+  STRINGS[0] = G_STRINGS[mode];
+  $('modeLow').setAttribute('aria-pressed', mode === 'low');
+  $('modeHigh').setAttribute('aria-pressed', mode === 'high');
+  $('tuning').textContent = STRINGS.map(s => s.name + s.oct).join(' · ');
+  labelString($('str0'), STRINGS[0]);
+  tunedOk.delete(0);           // a different G has to be tuned again
+  history = []; lastIndex = null;
+  setIdle(running ? 'Pluck a string' : 'Tap Start, then pluck a string');
+  renderStrings(null);
+  showTarget(locked ?? 0);
+  try { localStorage.setItem('gMode', mode); } catch (_) {}
+}
+$('modeLow').addEventListener('click', () => setMode('low'));
+$('modeHigh').addEventListener('click', () => setMode('high'));
+let savedMode = null;
+try { savedMode = localStorage.getItem('gMode'); } catch (_) {}
+setMode(savedMode === 'high' ? 'high' : 'low');
 </script>
 </body>
 </html>
